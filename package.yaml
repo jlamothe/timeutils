@@ -1,0 +1,48 @@
+name:                timeutils
+version:             0.0.0
+github:              "jlamothe/timeutils"
+license:             GPL-3
+author:              "Jonathan Lamothe"
+maintainer:          "jlamothe1980@gmail.com"
+copyright:           "Jonathan Lamothe"
+
+extra-source-files:
+- README.md
+- ChangeLog.md
+
+# Metadata used when publishing your package
+synopsis:            Time utilities
+category:            Time
+
+# To avoid duplicated efforts in documentation and dealing with the
+# complications of embedding Haddock markup inside cabal files, it is
+# common to point users to the README.md file.
+description:         Please see the README on GitHub at <https://github.com/jlamothe/timeutils#readme>
+
+dependencies:
+- base >= 4.7 && < 5
+
+library:
+  source-dirs: src
+
+executables:
+  timeutils:
+    main:                Main.hs
+    source-dirs:         app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - timeutils
+
+tests:
+  timeutils-test:
+    main:                Spec.hs
+    source-dirs:         test
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - timeutils
