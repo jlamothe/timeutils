@@ -46,3 +46,4 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - timeutils
+    - hspec >= 2.6.1 && < 2.7
