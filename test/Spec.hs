@@ -20,7 +20,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 -}
 
-import Test.Hspec
+import Test.Hspec (Spec, context, describe, hspec, it, shouldBe)
 
 import Data.Time.Clock (addUTCTime, getCurrentTime)
 
