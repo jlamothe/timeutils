@@ -28,11 +28,11 @@ import System.TimeUtils
 
 main :: IO ()
 main = hspec $ do
-  timeElapsedSpec
-  startTimerSpec
+  timeElapsedUsingSpec
+  startTimerUsingSpec
 
-timeElapsedSpec :: Spec
-timeElapsedSpec = describe "timeElapsedUsing" $ do
+timeElapsedUsingSpec :: Spec
+timeElapsedUsingSpec = describe "timeElapsedUsing" $ do
 
   context "newTimer" $
     it "should be 0" $ do
@@ -64,8 +64,8 @@ timeElapsedSpec = describe "timeElapsedUsing" $ do
           }
       timeElapsedUsing t2 timer `shouldBe` 120
 
-startTimerSpec :: Spec
-startTimerSpec = describe "startTimerUsing" $ do
+startTimerUsingSpec :: Spec
+startTimerUsingSpec = describe "startTimerUsing" $ do
 
   context "newTimer" $
     it "should set the start time" $ do
