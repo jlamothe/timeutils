@@ -24,7 +24,7 @@ import Test.Hspec
 
 import Data.Time.Clock (addUTCTime, getCurrentTime)
 
-import System.TimeUtils
+import Data.Time.Utils
 
 main :: IO ()
 main = hspec $ do
