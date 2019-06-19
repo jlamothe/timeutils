@@ -22,7 +22,42 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import Test.Hspec
 
+import Data.Time.Clock (addUTCTime, getCurrentTime)
+
+import System.TimeUtils
+
 main :: IO ()
-main = hspec $ describe "timeutils" $ return ()
+main = hspec $
+  describe "timeElapsedUsing" $ do
+
+    context "newTimer" $
+      it "should be 0" $ do
+        t <- getCurrentTime
+        timeElapsedUsing t newTimer `shouldBe` 0
+
+    context "started, no previous" $
+      it "should be 1 minute" $ do
+        t1 <- getCurrentTime
+        let
+          t2 = addUTCTime 60 t1
+          timer = newTimer { timerStartTime = Just t1 }
+        timeElapsedUsing t2 timer `shouldBe` 60
+
+    context "stopped, with previous" $
+      it "should be 1 minute" $ do
+        t <- getCurrentTime
+        let timer = newTimer { timerOffset = 60 }
+        timeElapsedUsing t timer `shouldBe` 60
+
+    context "started, with previous" $
+      it "should be 2 minutes" $ do
+        t1 <- getCurrentTime
+        let
+          t2 = addUTCTime 60 t1
+          timer = newTimer
+            { timerOffset    = 60
+            , timerStartTime = Just t1
+            }
+        timeElapsedUsing t2 timer `shouldBe` 120
 
 -- jl
