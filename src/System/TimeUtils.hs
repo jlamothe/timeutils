@@ -27,9 +27,11 @@ module System.TimeUtils (
   newTimer,
   -- * Timer Functions
   startTimer,
+  stopTimer,
   timeElapsed,
   -- * Pure Functions
   startTimerUsing,
+  stopTimerUsing,
   timeElapsedUsing
 ) where
 
@@ -64,6 +66,16 @@ startTimer timer = startTimerUsing
   <$> getCurrentTime
   <*> return timer
 
+-- | Stops a 'Timer'
+stopTimer
+  :: Timer
+  -- ^ The 'Timer' being stopped
+  -> IO Timer
+  -- ^ The modified 'Timer'
+stopTimer timer = stopTimerUsing
+  <$> getCurrentTime
+  <*> return timer
+
 -- | Calculates the amount of time elapsed on a 'Timer'
 timeElapsed
   :: Timer
@@ -86,6 +98,17 @@ startTimerUsing t timer
   | isNothing (timerStartTime timer) =
     timer { timerStartTime = Just t }
   | otherwise = timer
+
+-- | Stops a 'Timer' from a given time
+stopTimerUsing
+  :: UTCTime
+  -- ^ The current time
+  -> Timer
+  -- ^ The 'Timer' being stopped
+  -> Timer
+  -- ^ The modified 'Timer'
+stopTimerUsing t timer = newTimer { timerOffset = offset }
+  where offset = timeElapsedUsing t timer
 
 -- | Calculates the amount of time elapsed on a 'Timer' from a given
 -- time

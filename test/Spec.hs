@@ -30,6 +30,7 @@ main :: IO ()
 main = hspec $ do
   timeElapsedUsingSpec
   startTimerUsingSpec
+  stopTimerUsingSpec
 
 timeElapsedUsingSpec :: Spec
 timeElapsedUsingSpec = describe "timeElapsedUsing" $ do
@@ -88,5 +89,31 @@ startTimerUsingSpec = describe "startTimerUsing" $ do
         timer = newTimer { timerOffset = 60 }
         expected = timer { timerStartTime = Just t }
       startTimerUsing t timer `shouldBe` expected
+
+stopTimerUsingSpec :: Spec
+stopTimerUsingSpec = describe "stopTimerUsing" $ do
+
+  context "newTimer" $
+    it "should not change the timer" $ do
+      t <- getCurrentTime
+      stopTimerUsing t newTimer `shouldBe` newTimer
+
+  context "stopped timer" $
+    it "should not change the timer" $ do
+      t <- getCurrentTime
+      let timer = newTimer { timerOffset = 60 }
+      stopTimerUsing t timer `shouldBe` timer
+
+  context "running timer" $
+    it "should stop the timer, and calculate the new offset" $ do
+      t1 <- getCurrentTime
+      let
+        timer = newTimer
+          { timerOffset    = 60
+          , timerStartTime = Just t1
+          }
+        t2 = addUTCTime 60 t1
+        expected = newTimer { timerOffset = 120 }
+      stopTimerUsing t2 timer `shouldBe` expected
 
 -- jl
