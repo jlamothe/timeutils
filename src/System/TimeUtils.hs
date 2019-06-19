@@ -26,11 +26,14 @@ module System.TimeUtils (
   -- * Constructors
   newTimer,
   -- * Timer Functions
+  startTimer,
   timeElapsed,
   -- * Pure Functions
+  startTimerUsing,
   timeElapsedUsing
 ) where
 
+import Data.Maybe (isNothing)
 import Data.Time.Clock
   ( NominalDiffTime
   , UTCTime
@@ -51,6 +54,16 @@ data Timer = Timer
 newTimer :: Timer
 newTimer = Timer 0 Nothing
 
+-- | Starts a 'Timer'
+startTimer
+  :: Timer
+  -- ^ The 'Timer' being started
+  -> IO Timer
+  -- ^ The modified 'Timer'
+startTimer timer = startTimerUsing
+  <$> getCurrentTime
+  <*> return timer
+
 -- | Calculates the amount of time elapsed on a 'Timer'
 timeElapsed
   :: Timer
@@ -60,6 +73,19 @@ timeElapsed
 timeElapsed timer = timeElapsedUsing
   <$> getCurrentTime
   <*> return timer
+
+-- | Starts a 'Timer' from a given time
+startTimerUsing
+  :: UTCTime
+  -- ^ The current time
+  -> Timer
+  -- ^ The 'Timer' being started
+  -> Timer
+  -- ^ The modified 'Timer'
+startTimerUsing t timer
+  | isNothing (timerStartTime timer) =
+    timer { timerStartTime = Just t }
+  | otherwise = timer
 
 -- | Calculates the amount of time elapsed on a 'Timer' from a given
 -- time

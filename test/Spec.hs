@@ -27,37 +27,66 @@ import Data.Time.Clock (addUTCTime, getCurrentTime)
 import System.TimeUtils
 
 main :: IO ()
-main = hspec $
-  describe "timeElapsedUsing" $ do
+main = hspec $ do
+  timeElapsedSpec
+  startTimerSpec
 
-    context "newTimer" $
-      it "should be 0" $ do
-        t <- getCurrentTime
-        timeElapsedUsing t newTimer `shouldBe` 0
+timeElapsedSpec :: Spec
+timeElapsedSpec = describe "timeElapsedUsing" $ do
 
-    context "started, no previous" $
-      it "should be 1 minute" $ do
-        t1 <- getCurrentTime
-        let
-          t2 = addUTCTime 60 t1
-          timer = newTimer { timerStartTime = Just t1 }
-        timeElapsedUsing t2 timer `shouldBe` 60
+  context "newTimer" $
+    it "should be 0" $ do
+      t <- getCurrentTime
+      timeElapsedUsing t newTimer `shouldBe` 0
 
-    context "stopped, with previous" $
-      it "should be 1 minute" $ do
-        t <- getCurrentTime
-        let timer = newTimer { timerOffset = 60 }
-        timeElapsedUsing t timer `shouldBe` 60
+  context "started, no previous" $
+    it "should be 1 minute" $ do
+      t1 <- getCurrentTime
+      let
+        t2 = addUTCTime 60 t1
+        timer = newTimer { timerStartTime = Just t1 }
+      timeElapsedUsing t2 timer `shouldBe` 60
 
-    context "started, with previous" $
-      it "should be 2 minutes" $ do
-        t1 <- getCurrentTime
-        let
-          t2 = addUTCTime 60 t1
-          timer = newTimer
-            { timerOffset    = 60
-            , timerStartTime = Just t1
-            }
-        timeElapsedUsing t2 timer `shouldBe` 120
+  context "stopped, with previous" $
+    it "should be 1 minute" $ do
+      t <- getCurrentTime
+      let timer = newTimer { timerOffset = 60 }
+      timeElapsedUsing t timer `shouldBe` 60
+
+  context "started, with previous" $
+    it "should be 2 minutes" $ do
+      t1 <- getCurrentTime
+      let
+        t2 = addUTCTime 60 t1
+        timer = newTimer
+          { timerOffset    = 60
+          , timerStartTime = Just t1
+          }
+      timeElapsedUsing t2 timer `shouldBe` 120
+
+startTimerSpec :: Spec
+startTimerSpec = describe "startTimerUsing" $ do
+
+  context "newTimer" $
+    it "should set the start time" $ do
+      t <- getCurrentTime
+      let expected = newTimer { timerStartTime = Just t }
+      startTimerUsing t newTimer `shouldBe` expected
+
+  context "already started" $
+    it "should not modify the timer" $ do
+      t1 <- getCurrentTime
+      let
+        t2 = addUTCTime 60 t1
+        timer = newTimer { timerStartTime = Just t1 }
+      startTimerUsing t2 timer `shouldBe` timer
+
+  context "stopped" $
+    it "should resume the timer" $ do
+      t <- getCurrentTime
+      let
+        timer = newTimer { timerOffset = 60 }
+        expected = timer { timerStartTime = Just t }
+      startTimerUsing t timer `shouldBe` expected
 
 -- jl
