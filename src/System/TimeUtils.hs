@@ -52,7 +52,11 @@ newTimer :: Timer
 newTimer = Timer 0 Nothing
 
 -- | Calculates the amount of time elapsed on a 'Timer'
-timeElapsed :: Timer -> IO NominalDiffTime
+timeElapsed
+  :: Timer
+  -- ^ The 'Timer' being checked
+  -> IO NominalDiffTime
+  -- ^ The amount of time elapsed
 timeElapsed timer = timeElapsedUsing
   <$> getCurrentTime
   <*> return timer
