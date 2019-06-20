@@ -46,10 +46,10 @@ import Data.Time.Clock
 -- | A type that keeps track of the passage of time
 data Timer = Timer
   { timerOffset    :: NominalDiffTime
-  -- ^ The amount of time previously logged
+    -- ^ The amount of time previously logged
   , timerStartTime :: Maybe UTCTime
-  -- ^ The the time the 'Timer' was last started ('Nothing' if not
-  -- currently running)
+    -- ^ The the time the 'Timer' was last started ('Nothing' if not
+    -- currently running)
   } deriving (Eq, Show)
 
 -- | New instance of a 'Timer'
