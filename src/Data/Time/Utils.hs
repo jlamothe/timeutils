@@ -23,13 +23,16 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 module Data.Time.Utils (
   -- * Types
   Timer (..),
+  TimeParts (..),
   -- * Constructors
   newTimer,
+  newTimeParts,
   -- * Timer Functions
   startTimer,
   stopTimer,
   timeElapsed,
   -- * Pure Functions
+  decomposeTime,
   startTimerUsing,
   stopTimerUsing,
   timeElapsedUsing
@@ -52,9 +55,27 @@ data Timer = Timer
     -- currently running)
   } deriving (Eq, Show)
 
+-- | Represents a 'NominalDiffTime' in a more human readable format
+data TimeParts = TimeParts
+  { tpDays    :: Int
+    -- ^ The number of days
+  , tpHours   :: Int
+    -- ^ The number of hours
+  , tpMinutes :: Int
+    -- ^ The number of minutes
+  , tpSeconds :: Int
+    -- ^ The number of seconds
+  , tpMillis  :: Int
+    -- ^ The number if milliseconds
+  } deriving (Eq, Show)
+
 -- | New instance of a 'Timer'
 newTimer :: Timer
 newTimer = Timer 0 Nothing
+
+-- | New instance of a 'TimeParts' value
+newTimeParts :: TimeParts
+newTimeParts = TimeParts 0 0 0 0 0
 
 -- | Starts a 'Timer'
 startTimer
@@ -85,6 +106,26 @@ timeElapsed
 timeElapsed timer = timeElapsedUsing
   <$> getCurrentTime
   <*> return timer
+
+-- | Converts a 'NominalDiffTime' to a 'TimeParts' value
+decomposeTime :: NominalDiffTime -> TimeParts
+decomposeTime t = TimeParts
+  { tpDays    = days
+  , tpHours   = hours
+  , tpMinutes = minutes
+  , tpSeconds = seconds
+  , tpMillis  = millis
+  }
+  where
+    days    = h `quot` 24
+    hours   = h - days * 24
+    minutes = m - h * 60
+    seconds = s - m * 60
+    millis  = ms - s * 1000
+    h       = m `quot` 60
+    m       = s `quot` 60
+    s       = ms `quot` 1000
+    ms      = floor $ t * 1000
 
 -- | Starts a 'Timer' from a given time
 startTimerUsing

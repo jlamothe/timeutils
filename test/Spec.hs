@@ -31,6 +31,7 @@ main = hspec $ do
   timeElapsedUsingSpec
   startTimerUsingSpec
   stopTimerUsingSpec
+  decomposeTimeSpec
 
 timeElapsedUsingSpec :: Spec
 timeElapsedUsingSpec = describe "timeElapsedUsing" $ do
@@ -115,5 +116,41 @@ stopTimerUsingSpec = describe "stopTimerUsing" $ do
         t2 = addUTCTime 60 t1
         expected = newTimer { timerOffset = 120 }
       stopTimerUsing t2 timer `shouldBe` expected
+
+decomposeTimeSpec :: Spec
+decomposeTimeSpec = describe "decomposeTime" $ do
+  let
+    days    = 1
+    hours   = days * 24 + 2
+    minutes = hours * 60 + 3
+    seconds = minutes * 60 + 4
+    millis  = seconds * 1000 + 5
+    time    = millis / 1000
+
+  context "zero" $
+    it "should be zero" $
+      decomposeTime 0 `shouldBe` newTimeParts
+
+  context "positive" $
+    it "should calculate the time parts" $ let
+      expected = TimeParts
+        { tpDays    = 1
+        , tpHours   = 2
+        , tpMinutes = 3
+        , tpSeconds = 4
+        , tpMillis  = 5
+        }
+      in decomposeTime time `shouldBe` expected
+
+  context "negative" $
+    it "should calculate the time parts" $ let
+      expected = TimeParts
+        { tpDays    = -1
+        , tpHours   = -2
+        , tpMinutes = -3
+        , tpSeconds = -4
+        , tpMillis  = -5
+        }
+      in decomposeTime (-time) `shouldBe` expected
 
 -- jl
