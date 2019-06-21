@@ -32,6 +32,7 @@ main = hspec $ do
   startTimerUsingSpec
   stopTimerUsingSpec
   decomposeTimeSpec
+  composeTimeSpec
 
 timeElapsedUsingSpec :: Spec
 timeElapsedUsingSpec = describe "timeElapsedUsing" $ do
@@ -152,5 +153,18 @@ decomposeTimeSpec = describe "decomposeTime" $ do
         , tpMillis  = -5
         }
       in decomposeTime (-time) `shouldBe` expected
+
+composeTimeSpec :: Spec
+composeTimeSpec = describe "composeTime" $
+  it "should compose correctly" $ let
+    parts = TimeParts
+      { tpDays    = 1
+      , tpHours   = 2
+      , tpMinutes = 3
+      , tpSeconds = 4
+      , tpMillis  = 5
+      }
+    t = composeTime parts
+    in decomposeTime t `shouldBe` parts
 
 -- jl

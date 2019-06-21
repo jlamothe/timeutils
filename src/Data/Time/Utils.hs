@@ -33,6 +33,7 @@ module Data.Time.Utils (
   timeElapsed,
   -- * Pure Functions
   decomposeTime,
+  composeTime,
   startTimerUsing,
   stopTimerUsing,
   timeElapsedUsing
@@ -126,6 +127,15 @@ decomposeTime t = TimeParts
     m       = s `quot` 60
     s       = ms `quot` 1000
     ms      = floor $ t * 1000
+
+-- | Converts a 'TimeParts' value to a 'NominalDiffTime'
+composeTime :: TimeParts -> NominalDiffTime
+composeTime tp = fromInteger millis / 1000
+  where
+    millis  = seconds * 1000 + toInteger (tpMillis tp)
+    seconds = minutes * 60 + toInteger (tpSeconds tp)
+    minutes = hours * 60 + toInteger (tpMinutes tp)
+    hours   = toInteger (tpDays tp) * 24 + toInteger (tpHours tp)
 
 -- | Starts a 'Timer' from a given time
 startTimerUsing
