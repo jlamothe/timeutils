@@ -34,12 +34,13 @@ module Data.Time.Utils (
   -- * Pure Functions
   decomposeTime,
   composeTime,
+  timerIsRunning,
   startTimerUsing,
   stopTimerUsing,
   timeElapsedUsing
 ) where
 
-import Data.Maybe (isNothing)
+import Data.Maybe (isJust, isNothing)
 import Data.Time.Clock
   ( NominalDiffTime
   , UTCTime
@@ -136,6 +137,13 @@ composeTime tp = fromInteger millis / 1000
     seconds = minutes * 60 + toInteger (tpSeconds tp)
     minutes = hours * 60 + toInteger (tpMinutes tp)
     hours   = toInteger (tpDays tp) * 24 + toInteger (tpHours tp)
+
+-- | Determines whether or not a 'Timer' is running
+timerIsRunning
+  :: Timer
+  -- ^ The 'Timer' being checked
+  -> Bool
+timerIsRunning = isJust . timerStartTime
 
 -- | Starts a 'Timer' from a given time
 startTimerUsing

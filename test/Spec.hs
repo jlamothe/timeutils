@@ -33,6 +33,7 @@ main = hspec $ do
   stopTimerUsingSpec
   decomposeTimeSpec
   composeTimeSpec
+  timerIsRunningSpec
 
 timeElapsedUsingSpec :: Spec
 timeElapsedUsingSpec = describe "timeElapsedUsing" $ do
@@ -166,5 +167,17 @@ composeTimeSpec = describe "composeTime" $
       }
     t = composeTime parts
     in decomposeTime t `shouldBe` parts
+
+timerIsRunningSpec :: Spec
+timerIsRunningSpec = describe "timerIsRunning" $ do
+
+  context "not running" $
+    it "should return False" $
+      timerIsRunning newTimer `shouldBe` False
+
+  context "running" $
+    it "should return True" $ do
+      timer <- startTimer newTimer
+      timerIsRunning timer `shouldBe` True
 
 -- jl
