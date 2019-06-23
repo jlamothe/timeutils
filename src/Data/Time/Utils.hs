@@ -53,7 +53,7 @@ data Timer = Timer
   { timerOffset    :: NominalDiffTime
     -- ^ The amount of time previously logged
   , timerStartTime :: Maybe UTCTime
-    -- ^ The the time the 'Timer' was last started ('Nothing' if not
+    -- ^ The time the 'Timer' was last started ('Nothing' if not
     -- currently running)
   } deriving (Eq, Show)
 
