@@ -24,20 +24,24 @@ module Data.Time.Utils (
   -- * Types
   Timer (..),
   TimeParts (..),
+  Countdown (..),
   -- * Constructors
   newTimer,
   newTimeParts,
-  -- * Timer Functions
+  newCountdown,
+  -- * Time Functions
   startTimer,
   stopTimer,
   timeElapsed,
+  timeRemaining,
   -- * Pure Functions
   decomposeTime,
   composeTime,
   timerIsRunning,
   startTimerUsing,
   stopTimerUsing,
-  timeElapsedUsing
+  timeElapsedUsing,
+  timeRemainingUsing
 ) where
 
 import Data.Maybe (isJust, isNothing)
@@ -71,6 +75,14 @@ data TimeParts = TimeParts
     -- ^ The number if milliseconds
   } deriving (Eq, Show)
 
+-- | Represents a timed countdown
+data Countdown = Countdown
+  { countdownLength :: NominalDiffTime
+  -- ^ The length of time
+  , countdownTimer  :: Timer
+  -- ^ The timer which runs the 'Countdown'
+  } deriving (Eq, Show)
+
 -- | New instance of a 'Timer'
 newTimer :: Timer
 newTimer = Timer 0 Nothing
@@ -78,6 +90,13 @@ newTimer = Timer 0 Nothing
 -- | New instance of a 'TimeParts' value
 newTimeParts :: TimeParts
 newTimeParts = TimeParts 0 0 0 0 0
+
+-- | New instance of a 'Countdown'
+newCountdown
+  :: NominalDiffTime
+  -- ^ The time length
+  -> Countdown
+newCountdown l = Countdown l newTimer
 
 -- | Starts a 'Timer'
 startTimer
@@ -108,6 +127,16 @@ timeElapsed
 timeElapsed timer = timeElapsedUsing
   <$> getCurrentTime
   <*> return timer
+
+-- | Calculates the amount of time remaining in a 'Countdown'
+timeRemaining
+  :: Countdown
+  -- ^ The 'Countdown' being checked
+  -> IO NominalDiffTime
+  -- ^ The amount of time remaining
+timeRemaining countdown = timeRemainingUsing
+  <$> getCurrentTime
+  <*> return countdown
 
 -- | Converts a 'NominalDiffTime' to a 'TimeParts' value
 decomposeTime :: NominalDiffTime -> TimeParts
@@ -181,5 +210,19 @@ timeElapsedUsing
 timeElapsedUsing t timer = case timerStartTime timer of
   Nothing -> timerOffset timer
   Just st -> timerOffset timer + diffUTCTime t st
+
+-- | Calculates the amoun of time remaining in a 'Countdown' at a
+-- given time
+timeRemainingUsing
+  :: UTCTime
+  -- ^ The current time
+  -> Countdown
+  -- ^ The 'Countdown' being checked
+  -> NominalDiffTime
+  -- ^ The amount of time remaining
+timeRemainingUsing t countdown = len - timeElapsedUsing t timer
+  where
+    len   = countdownLength countdown
+    timer = countdownTimer countdown
 
 -- jl

@@ -34,6 +34,7 @@ main = hspec $ do
   decomposeTimeSpec
   composeTimeSpec
   timerIsRunningSpec
+  timeRemainingUsingSpec
 
 timeElapsedUsingSpec :: Spec
 timeElapsedUsingSpec = describe "timeElapsedUsing" $ do
@@ -179,5 +180,26 @@ timerIsRunningSpec = describe "timerIsRunning" $ do
     it "should return True" $ do
       timer <- startTimer newTimer
       timerIsRunning timer `shouldBe` True
+
+timeRemainingUsingSpec :: Spec
+timeRemainingUsingSpec = describe "timeRemainingUsing" $ do
+
+  context "not started" $
+    it "should be one minute" $ do
+      t <- getCurrentTime
+      let countdown = newCountdown 60
+      timeRemainingUsing t countdown `shouldBe` 60
+
+  context "started" $
+    it "should be 30 seconds" $ do
+      t1 <- getCurrentTime
+      let
+        t2        = addUTCTime 30 t1
+        timer     = startTimerUsing t1 newTimer
+        countdown = Countdown
+          { countdownLength = 60
+          , countdownTimer  = timer
+          }
+      timeRemainingUsing t2 countdown `shouldBe` 30
 
 -- jl
