@@ -190,16 +190,27 @@ timeRemainingUsingSpec = describe "timeRemainingUsing" $ do
       let countdown = newCountdown 60
       timeRemainingUsing t countdown `shouldBe` 60
 
-  context "started" $
-    it "should be 30 seconds" $ do
-      t1 <- getCurrentTime
-      let
-        t2        = addUTCTime 30 t1
-        timer     = startTimerUsing t1 newTimer
-        countdown = Countdown
-          { countdownLength = 60
-          , countdownTimer  = timer
-          }
-      timeRemainingUsing t2 countdown `shouldBe` 30
+  context "started" $ mapM_
+    (\(len, dt, expected) -> let
+      label = "length: " ++ show len ++
+        ", elapsed: " ++ show dt
+      expectation = "should be " ++ show expected
+      in
+        context label $
+          it expectation $ do
+            t1 <- getCurrentTime
+            let
+              t2        = addUTCTime dt t1
+              timer     = startTimerUsing t1 newTimer
+              countdown = Countdown
+                { countdownLength = len
+                , countdownTimer  = timer
+              }
+            timeRemainingUsing t2 countdown `shouldBe` expected)
+    --  length, elapsed, expected
+    [ ( 60,     30,      30       )
+    , ( 60,     60,      0        )
+    , ( 30,     60,      -30      )
+    ]
 
 -- jl
