@@ -34,6 +34,7 @@ module Data.Time.Utils (
   stopTimer,
   timeElapsed,
   timeRemaining,
+  countdownIsCompleted,
   -- * Pure Functions
   decomposeTime,
   composeTime,
@@ -41,7 +42,8 @@ module Data.Time.Utils (
   startTimerUsing,
   stopTimerUsing,
   timeElapsedUsing,
-  timeRemainingUsing
+  timeRemainingUsing,
+  countdownIsCompletedUsing
 ) where
 
 import Data.Maybe (isJust, isNothing)
@@ -138,6 +140,17 @@ timeRemaining countdown = timeRemainingUsing
   <$> getCurrentTime
   <*> return countdown
 
+-- | Determines whether or not a 'Countdown' has completed.
+countdownIsCompleted
+  :: Countdown
+  -- ^ The 'Countdown' being checked
+  -> IO Bool
+  -- ^ Returns 'True' if the 'Countdown' has completed, 'False'
+  -- otherwise
+countdownIsCompleted countdown = countdownIsCompletedUsing
+  <$> getCurrentTime
+  <*> return countdown
+
 -- | Converts a 'NominalDiffTime' to a 'TimeParts' value
 decomposeTime :: NominalDiffTime -> TimeParts
 decomposeTime t = TimeParts
@@ -224,5 +237,17 @@ timeRemainingUsing t countdown = len - timeElapsedUsing t timer
   where
     len   = countdownLength countdown
     timer = countdownTimer countdown
+
+-- | Determines if a 'Countdown' is completed at a given time
+countdownIsCompletedUsing
+  :: UTCTime
+  -- ^ The current time
+  -> Countdown
+  -- ^ The 'Countdown' being checked
+  -> Bool
+  -- ^ Returns 'True' if the 'Countdown' has completed, 'False'
+  -- otherwise.
+countdownIsCompletedUsing t countdown =
+  timeRemainingUsing t countdown <= 0
 
 -- jl

@@ -35,6 +35,7 @@ main = hspec $ do
   composeTimeSpec
   timerIsRunningSpec
   timeRemainingUsingSpec
+  countdownIsCompletedUsingSpec
 
 timeElapsedUsingSpec :: Spec
 timeElapsedUsingSpec = describe "timeElapsedUsing" $ do
@@ -211,6 +212,42 @@ timeRemainingUsingSpec = describe "timeRemainingUsing" $ do
     [ ( 60,     30,      30       )
     , ( 60,     60,      0        )
     , ( 30,     60,      -30      )
+    ]
+
+countdownIsCompletedUsingSpec :: Spec
+countdownIsCompletedUsingSpec = describe "countdownIsCompletedUsing" $ do
+
+  context "not started" $ mapM_
+    (\(label, dt, expected) ->
+      context label $
+        it ("should be " ++ show expected) $ do
+          t <- getCurrentTime
+          let cd = newCountdown dt
+          countdownIsCompletedUsing t cd `shouldBe` expected)
+    --  label,               length, expected
+    [ ( "negative length",   -60,    True     )
+    , ( "zero length",       0,      True     )
+    , ( "posititive length", 60,     False    )
+    ]
+
+  context "started" $ mapM_
+    (\(len, dt, expected) -> let
+      label = "length: " ++ show len ++
+        ", elapsed: " ++ show dt
+      in context label $
+        it ("should be " ++ show expected) $ do
+          t1 <- getCurrentTime
+          let
+            t2        = addUTCTime dt t1
+            timer     = startTimerUsing t1 newTimer
+            countdown = (newCountdown len) { countdownTimer = timer }
+          countdownIsCompletedUsing t2 countdown `shouldBe` expected)
+    --  length, elapsed, expected
+    [ ( 60,     0,       False    )
+    , ( 60,     30,      False    )
+    , ( 60,     60,      True     )
+    , ( 0,      0,       True     )
+    , ( 30,     60,      True     )
     ]
 
 -- jl
