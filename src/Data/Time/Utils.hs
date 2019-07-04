@@ -46,7 +46,8 @@ module Data.Time.Utils (
   timeElapsedUsing,
   -- ** Countdown Functions
   timeRemainingUsing,
-  countdownIsCompletedUsing
+  countdownIsCompletedUsing,
+  countdownIsRunning
 ) where
 
 import Data.Maybe (isJust, isNothing)
@@ -252,5 +253,14 @@ countdownIsCompletedUsing
   -- otherwise.
 countdownIsCompletedUsing t countdown =
   timeRemainingUsing t countdown <= 0
+
+-- | Determines whether or not a 'Countdown' is running
+countdownIsRunning
+  :: Countdown
+  -- ^ The 'Countdown' being checked
+  -> Bool
+  -- ^ 'True' if running, 'False' otherwise
+countdownIsRunning countdown = timerIsRunning timer
+  where timer = countdownTimer countdown
 
 -- jl
