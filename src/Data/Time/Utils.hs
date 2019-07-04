@@ -29,19 +29,22 @@ module Data.Time.Utils (
   newTimer,
   newTimeParts,
   newCountdown,
-  -- * Time Functions
+  -- * Timer Functions
   startTimer,
   stopTimer,
   timeElapsed,
+  -- * Countdown Functions
   timeRemaining,
   countdownIsCompleted,
   -- * Pure Functions
   decomposeTime,
   composeTime,
+  -- ** Timer Functions
   timerIsRunning,
   startTimerUsing,
   stopTimerUsing,
   timeElapsedUsing,
+  -- ** Countdown Functions
   timeRemainingUsing,
   countdownIsCompletedUsing
 ) where
