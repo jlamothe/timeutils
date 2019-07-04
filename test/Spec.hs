@@ -37,6 +37,7 @@ main = hspec $ do
   timeRemainingUsingSpec
   countdownIsCompletedUsingSpec
   countdownIsRunningSpec
+  startCountdownSpec
 
 timeElapsedUsingSpec :: Spec
 timeElapsedUsingSpec = describe "timeElapsedUsing" $ do
@@ -264,5 +265,12 @@ countdownIsRunningSpec = describe "countdownIsRunning" $ do
       timer <- startTimer newTimer
       let countdown = (newCountdown 60) { countdownTimer = timer }
       countdownIsRunning countdown `shouldBe` True
+
+startCountdownSpec :: Spec
+startCountdownSpec = describe "startCountdown" $
+  it "should start the countdown" $ do
+    let countdown = newCountdown 60
+    countdown' <- startCountdown countdown
+    countdownIsRunning countdown' `shouldBe` True
 
 -- jl

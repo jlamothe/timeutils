@@ -34,6 +34,7 @@ module Data.Time.Utils (
   stopTimer,
   timeElapsed,
   -- * Countdown Functions
+  startCountdown,
   timeRemaining,
   countdownIsCompleted,
   -- * Pure Functions
@@ -45,6 +46,7 @@ module Data.Time.Utils (
   stopTimerUsing,
   timeElapsedUsing,
   -- ** Countdown Functions
+  startCountdownUsing,
   timeRemainingUsing,
   countdownIsCompletedUsing,
   countdownIsRunning
@@ -133,6 +135,16 @@ timeElapsed
 timeElapsed timer = timeElapsedUsing
   <$> getCurrentTime
   <*> return timer
+
+-- | Starts a 'Countdown'
+startCountdown
+  :: Countdown
+  -- ^ The 'Countdown' being started
+  -> IO Countdown
+  -- ^ Returns the modified 'Countdown'
+startCountdown countdown = startCountdownUsing
+  <$> getCurrentTime
+  <*> return countdown
 
 -- | Calculates the amount of time remaining in a 'Countdown'
 timeRemaining
@@ -227,6 +239,20 @@ timeElapsedUsing
 timeElapsedUsing t timer = case timerStartTime timer of
   Nothing -> timerOffset timer
   Just st -> timerOffset timer + diffUTCTime t st
+
+-- | Starts a 'Countdown' using a given time
+startCountdownUsing
+  :: UTCTime
+  -- ^ The current time
+  -> Countdown
+  -- ^ The 'Countdown' being started
+  -> Countdown
+  -- ^ The modified 'Countdown'
+startCountdownUsing t countdown =
+  countdown { countdownTimer = timer' }
+  where
+    timer' = startTimerUsing t timer
+    timer  = countdownTimer countdown
 
 -- | Calculates the amount of time remaining in a 'Countdown' at a
 -- given time
