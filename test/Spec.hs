@@ -252,7 +252,7 @@ countdownIsCompletedUsingSpec = describe "countdownIsCompletedUsing" $ do
     ]
 
 countdownIsRunningSpec :: Spec
-countdownIsRunningSpec = describe "countdownUsRunning" $ do
+countdownIsRunningSpec = describe "countdownIsRunning" $ do
 
   context "not running" $
     it "should return False" $ let
