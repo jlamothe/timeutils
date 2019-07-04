@@ -227,7 +227,7 @@ timeElapsedUsing t timer = case timerStartTime timer of
   Nothing -> timerOffset timer
   Just st -> timerOffset timer + diffUTCTime t st
 
--- | Calculates the amoun of time remaining in a 'Countdown' at a
+-- | Calculates the amount of time remaining in a 'Countdown' at a
 -- given time
 timeRemainingUsing
   :: UTCTime
