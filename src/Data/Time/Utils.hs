@@ -52,7 +52,8 @@ module Data.Time.Utils (
   stopCountdownUsing,
   timeRemainingUsing,
   countdownIsCompletedUsing,
-  countdownIsRunning
+  countdownIsRunning,
+  countdownIsStarted
 ) where
 
 import Data.Maybe (isJust, isNothing)
@@ -324,6 +325,16 @@ countdownIsRunning
   -> Bool
   -- ^ 'True' if running, 'False' otherwise
 countdownIsRunning countdown = timerIsRunning timer
+  where timer = countdownTimer countdown
+
+-- | Determines whether or not a 'Countdown' has been started (even if
+-- subsequently stopped)
+countdownIsStarted
+  :: Countdown
+  -- ^ The 'Countdown' being checked
+  -> Bool
+  -- ^ 'True' if it has been started, 'False' otherwise
+countdownIsStarted countdown = timerIsStarted timer
   where timer = countdownTimer countdown
 
 -- jl

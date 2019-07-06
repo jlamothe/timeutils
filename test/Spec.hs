@@ -38,6 +38,7 @@ main = hspec $ do
   timeRemainingUsingSpec
   countdownIsCompletedUsingSpec
   countdownIsRunningSpec
+  countdownIsStartedSpec
   startCountdownSpec
   stopCountdownSpec
 
@@ -288,6 +289,27 @@ countdownIsRunningSpec = describe "countdownIsRunning" $ do
       timer <- startTimer newTimer
       let countdown = (newCountdown 60) { countdownTimer = timer }
       countdownIsRunning countdown `shouldBe` True
+
+countdownIsStartedSpec :: Spec
+countdownIsStartedSpec = describe "countdownIsStarted" $ do
+
+  context "new countdown" $
+    it "should be False" $
+      countdownIsStarted (newCountdown 60) `shouldBe` False
+
+  context "countdown started" $
+    it "should be True" $ do
+      countdown <- startCountdown $ newCountdown 60
+      countdownIsStarted countdown `shouldBe` True
+
+  context "countdown started, then stopped" $
+    it "should be True" $ do
+      t1 <- getCurrentTime
+      let
+        t2         = addUTCTime 30 t1
+        countdown  = startCountdownUsing t1 $ newCountdown 60
+        countdown' = stopCountdownUsing t2 countdown
+      countdownIsStarted countdown' `shouldBe` True
 
 startCountdownSpec :: Spec
 startCountdownSpec = describe "startCountdown" $
