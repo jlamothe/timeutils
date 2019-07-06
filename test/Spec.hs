@@ -34,6 +34,7 @@ main = hspec $ do
   decomposeTimeSpec
   composeTimeSpec
   timerIsRunningSpec
+  timerIsStartedSpec
   timeRemainingUsingSpec
   countdownIsCompletedUsingSpec
   countdownIsRunningSpec
@@ -184,6 +185,27 @@ timerIsRunningSpec = describe "timerIsRunning" $ do
     it "should return True" $ do
       timer <- startTimer newTimer
       timerIsRunning timer `shouldBe` True
+
+timerIsStartedSpec :: Spec
+timerIsStartedSpec = describe "timerIsStarted" $ do
+
+  context "newTimer" $
+    it "should be False" $
+      timerIsStarted newTimer `shouldBe` False
+
+  context "started" $
+    it "should be True" $ do
+      timer <- startTimer newTimer
+      timerIsStarted timer `shouldBe` True
+
+  context "started, then stopped" $
+    it "should be True" $ do
+      t1 <- getCurrentTime
+      let
+        t2     = addUTCTime 60 t1
+        timer  = startTimerUsing t1 newTimer
+        timer' = stopTimerUsing t2 timer
+      timerIsStarted timer' `shouldBe` True
 
 timeRemainingUsingSpec :: Spec
 timeRemainingUsingSpec = describe "timeRemainingUsing" $ do

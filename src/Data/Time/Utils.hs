@@ -43,6 +43,7 @@ module Data.Time.Utils (
   composeTime,
   -- ** Timer Functions
   timerIsRunning,
+  timerIsStarted,
   startTimerUsing,
   stopTimerUsing,
   timeElapsedUsing,
@@ -214,6 +215,16 @@ timerIsRunning
   -- ^ The 'Timer' being checked
   -> Bool
 timerIsRunning = isJust . timerStartTime
+
+-- | Determines whether or not a 'Timer' has been started (even if it
+-- is currently stopped)
+timerIsStarted
+  :: Timer
+  -- ^ The 'Timer' being checked
+  -> Bool
+  -- ^ 'True' if the timer has been started, 'False' otherwise
+timerIsStarted timer = timerIsRunning timer ||
+  timerOffset timer /= 0
 
 -- | Starts a 'Timer' from a given time
 startTimerUsing
