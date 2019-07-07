@@ -41,6 +41,7 @@ main = hspec $ do
   countdownIsStartedSpec
   startCountdownSpec
   stopCountdownSpec
+  currentLapUsingSpec
 
 timeElapsedUsingSpec :: Spec
 timeElapsedUsingSpec = describe "timeElapsedUsing" $ do
@@ -324,5 +325,22 @@ stopCountdownSpec = describe "stopCountdown" $
     countdown  <- startCountdown $ newCountdown 60
     countdown' <- stopCountdown countdown
     countdownIsRunning countdown' `shouldBe` False
+
+currentLapUsingSpec :: Spec
+currentLapUsingSpec = describe "currentLapUsing" $ do
+
+  context "newStopwatch" $
+    it "should be zero" $ do
+      t <- getCurrentTime
+      currentLapUsing t newStopwatch ` shouldBe` 0
+
+  context "running" $
+    it "should be 1 minute" $ do
+      t1 <- getCurrentTime
+      let
+        t2        = addUTCTime 60 t1
+        timer     = startTimerUsing t1 newTimer
+        stopwatch = newStopwatch { stopwatchTimer = timer }
+      currentLapUsing t2 stopwatch `shouldBe` 60
 
 -- jl

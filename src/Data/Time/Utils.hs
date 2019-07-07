@@ -25,10 +25,12 @@ module Data.Time.Utils (
   Timer (..),
   TimeParts (..),
   Countdown (..),
+  Stopwatch (..),
   -- * Constructors
   newTimer,
   newTimeParts,
   newCountdown,
+  newStopwatch,
   -- * Timer Functions
   startTimer,
   stopTimer,
@@ -38,6 +40,8 @@ module Data.Time.Utils (
   stopCountdown,
   timeRemaining,
   countdownIsCompleted,
+  -- * Stopwatch Functions
+  currentLap,
   -- * Pure Functions
   decomposeTime,
   composeTime,
@@ -53,7 +57,9 @@ module Data.Time.Utils (
   timeRemainingUsing,
   countdownIsCompletedUsing,
   countdownIsRunning,
-  countdownIsStarted
+  countdownIsStarted,
+  -- ** Stopwatch Functions
+  currentLapUsing
 ) where
 
 import Data.Maybe (isJust, isNothing)
@@ -95,6 +101,12 @@ data Countdown = Countdown
   -- ^ The timer which runs the 'Countdown'
   } deriving (Eq, Show)
 
+-- | Tracks the time of multiple laps
+data Stopwatch = Stopwatch
+  { stopwatchTimer :: Timer
+  -- ^ The 'Timer' for the current lap
+  } deriving (Eq, Show)
+
 -- | New instance of a 'Timer'
 newTimer :: Timer
 newTimer = Timer 0 Nothing
@@ -109,6 +121,12 @@ newCountdown
   -- ^ The time length
   -> Countdown
 newCountdown l = Countdown l newTimer
+
+-- | New instance of a stopwatch
+newStopwatch :: Stopwatch
+newStopwatch = Stopwatch
+  { stopwatchTimer = newTimer
+  }
 
 -- | Starts a 'Timer'
 startTimer
@@ -180,6 +198,16 @@ countdownIsCompleted
 countdownIsCompleted countdown = countdownIsCompletedUsing
   <$> getCurrentTime
   <*> return countdown
+
+-- | Returns the time of the current lap from a 'Stopwatch'
+currentLap
+  :: Stopwatch
+  -- ^ The 'Stopwatch' being checked
+  -> IO NominalDiffTime
+  -- ^ Returns the amount of time elapsed in the current lap
+currentLap stopwatch = currentLapUsing
+  <$> getCurrentTime
+  <*> return stopwatch
 
 -- | Converts a 'NominalDiffTime' to a 'TimeParts' value
 decomposeTime :: NominalDiffTime -> TimeParts
@@ -336,5 +364,16 @@ countdownIsStarted
   -- ^ 'True' if it has been started, 'False' otherwise
 countdownIsStarted countdown = timerIsStarted timer
   where timer = countdownTimer countdown
+
+-- | Determines the length of the current lap given a time
+currentLapUsing
+  :: UTCTime
+  -- ^ The current time
+  -> Stopwatch
+  -- ^ The 'Stopwatch' being checkwd
+  -> NominalDiffTime
+  -- ^ The elapsed time for the current lap
+currentLapUsing t stopwatch = timeElapsedUsing t timer
+  where timer = stopwatchTimer stopwatch
 
 -- jl
