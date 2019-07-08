@@ -59,11 +59,9 @@ timeElapsedUsingSpec = describe "timeElapsedUsing" $ do
 
   context "started, no previous" $
     it "should be 1 minute" $ do
-      t1 <- getCurrentTime
-      let
-        t2 = addUTCTime 60 t1
-        timer = newTimer { timerStartTime = Just t1 }
-      timeElapsedUsing t2 timer `shouldBe` 60
+      (t, t') <- times 60
+      let timer = newTimer { timerStartTime = Just t }
+      timeElapsedUsing t' timer `shouldBe` 60
 
   context "stopped, with previous" $
     it "should be 1 minute" $ do
@@ -73,14 +71,13 @@ timeElapsedUsingSpec = describe "timeElapsedUsing" $ do
 
   context "started, with previous" $
     it "should be 2 minutes" $ do
-      t1 <- getCurrentTime
+      (t, t') <- times 60
       let
-        t2 = addUTCTime 60 t1
         timer = newTimer
           { timerOffset    = 60
-          , timerStartTime = Just t1
+          , timerStartTime = Just t
           }
-      timeElapsedUsing t2 timer `shouldBe` 120
+      timeElapsedUsing t' timer `shouldBe` 120
 
 startTimerUsingSpec :: Spec
 startTimerUsingSpec = describe "startTimerUsing" $ do
@@ -93,11 +90,9 @@ startTimerUsingSpec = describe "startTimerUsing" $ do
 
   context "already started" $
     it "should not modify the timer" $ do
-      t1 <- getCurrentTime
-      let
-        t2 = addUTCTime 60 t1
-        timer = newTimer { timerStartTime = Just t1 }
-      startTimerUsing t2 timer `shouldBe` timer
+      (t, t') <- times 60
+      let timer = newTimer { timerStartTime = Just t }
+      startTimerUsing t' timer `shouldBe` timer
 
   context "stopped" $
     it "should resume the timer" $ do
@@ -123,15 +118,14 @@ stopTimerUsingSpec = describe "stopTimerUsing" $ do
 
   context "running timer" $
     it "should stop the timer, and calculate the new offset" $ do
-      t1 <- getCurrentTime
+      (t, t') <- times 60
       let
         timer = newTimer
           { timerOffset    = 60
-          , timerStartTime = Just t1
+          , timerStartTime = Just t
           }
-        t2 = addUTCTime 60 t1
         expected = newTimer { timerOffset = 120 }
-      stopTimerUsing t2 timer `shouldBe` expected
+      stopTimerUsing t' timer `shouldBe` expected
 
 decomposeTimeSpec :: Spec
 decomposeTimeSpec = describe "decomposeTime" $ do
@@ -208,11 +202,10 @@ timerIsStartedSpec = describe "timerIsStarted" $ do
 
   context "started, then stopped" $
     it "should be True" $ do
-      t1 <- getCurrentTime
+      (t, t') <- times 60
       let
-        t2     = addUTCTime 60 t1
-        timer  = startTimerUsing t1 newTimer
-        timer' = stopTimerUsing t2 timer
+        timer  = startTimerUsing t newTimer
+        timer' = stopTimerUsing t' timer
       timerIsStarted timer' `shouldBe` True
 
 timeRemainingUsingSpec :: Spec
@@ -232,15 +225,14 @@ timeRemainingUsingSpec = describe "timeRemainingUsing" $ do
       in
         context label $
           it expectation $ do
-            t1 <- getCurrentTime
+            (t, t') <- times dt
             let
-              t2        = addUTCTime dt t1
-              timer     = startTimerUsing t1 newTimer
+              timer     = startTimerUsing t newTimer
               countdown = Countdown
                 { countdownLength = len
                 , countdownTimer  = timer
               }
-            timeRemainingUsing t2 countdown `shouldBe` expected)
+            timeRemainingUsing t' countdown `shouldBe` expected)
     --  length, elapsed, expected
     [ ( 60,     30,      30       )
     , ( 60,     60,      0        )
@@ -311,11 +303,10 @@ countdownIsStartedSpec = describe "countdownIsStarted" $ do
 
   context "countdown started, then stopped" $
     it "should be True" $ do
-      t1 <- getCurrentTime
+      (t, t') <- times 30
       let
-        t2         = addUTCTime 30 t1
-        countdown  = startCountdownUsing t1 $ newCountdown 60
-        countdown' = stopCountdownUsing t2 countdown
+        countdown  = startCountdownUsing t $ newCountdown 60
+        countdown' = stopCountdownUsing t' countdown
       countdownIsStarted countdown' `shouldBe` True
 
 startCountdownSpec :: Spec
@@ -342,8 +333,9 @@ currentLapUsingSpec = describe "currentLapUsing" $ do
 
   context "running" $
     it "should be 1 minute" $ do
-      (stopwatch, t) <- runningStopwatch 60
-      currentLapUsing t stopwatch `shouldBe` 60
+      (t, t') <- times 60
+      let stopwatch = runningStopwatch t
+      currentLapUsing t' stopwatch `shouldBe` 60
 
 allLapsUsingSpec :: Spec
 allLapsUsingSpec = describe "allLapsUsing" $ do
@@ -355,14 +347,14 @@ allLapsUsingSpec = describe "allLapsUsing" $ do
 
   context "single lap" $
     it "should return a single lap of 1 minute" $ do
-      (stopwatch, t) <- runningStopwatch 60
-      allLapsUsing t stopwatch `shouldBe` [60]
+      (t, t') <- times 60
+      let stopwatch = runningStopwatch t
+      allLapsUsing t' stopwatch `shouldBe` [60]
 
   context "multiple laps" $
     it "should return the lap times" $ do
-      t <- getCurrentTime
+      (t, t') <- times 60
       let
-        t'        = addUTCTime 60 t
         timer     = startTimerUsing t newTimer
         stopwatch = Stopwatch
           { stopwatchTimer = timer
@@ -370,13 +362,14 @@ allLapsUsingSpec = describe "allLapsUsing" $ do
           }
       allLapsUsing t' stopwatch `shouldBe` [60, 10, 20, 30]
 
-runningStopwatch :: NominalDiffTime -> IO (Stopwatch, UTCTime)
-runningStopwatch dt = do
+times :: NominalDiffTime -> IO (UTCTime, UTCTime)
+times dt = do
   t <- getCurrentTime
-  let
-    t'        = addUTCTime dt t
-    timer     = startTimerUsing t newTimer
-    stopwatch = newStopwatch { stopwatchTimer = timer }
-  return (stopwatch, t')
+  let t' = addUTCTime dt t
+  return (t, t')
+
+runningStopwatch :: UTCTime -> Stopwatch
+runningStopwatch t = newStopwatch { stopwatchTimer = timer }
+  where timer = startTimerUsing t newTimer
 
 -- jl
