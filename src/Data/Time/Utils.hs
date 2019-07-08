@@ -54,12 +54,12 @@ module Data.Time.Utils (
   stopTimerUsing,
   timeElapsedUsing,
   -- ** Countdown Functions
+  countdownIsRunning,
+  countdownIsStarted,
   startCountdownUsing,
   stopCountdownUsing,
   timeRemainingUsing,
   countdownIsCompletedUsing,
-  countdownIsRunning,
-  countdownIsStarted,
   -- ** Stopwatch Functions
   stopwatchIsRunning,
   currentLapUsing,
@@ -320,6 +320,25 @@ timeElapsedUsing t timer = case timerStartTime timer of
   Nothing -> timerOffset timer
   Just st -> timerOffset timer + diffUTCTime t st
 
+-- | Determines whether or not a 'Countdown' is running
+countdownIsRunning
+  :: Countdown
+  -- ^ The 'Countdown' being checked
+  -> Bool
+  -- ^ 'True' if running, 'False' otherwise
+countdownIsRunning countdown = timerIsRunning timer
+  where timer = countdownTimer countdown
+
+-- | Determines whether or not a 'Countdown' has been started (even if
+-- subsequently stopped)
+countdownIsStarted
+  :: Countdown
+  -- ^ The 'Countdown' being checked
+  -> Bool
+  -- ^ 'True' if it has been started, 'False' otherwise
+countdownIsStarted countdown = timerIsStarted timer
+  where timer = countdownTimer countdown
+
 -- | Starts a 'Countdown' using a given time
 startCountdownUsing
   :: UTCTime
@@ -373,25 +392,6 @@ countdownIsCompletedUsing
   -- otherwise.
 countdownIsCompletedUsing t countdown =
   timeRemainingUsing t countdown <= 0
-
--- | Determines whether or not a 'Countdown' is running
-countdownIsRunning
-  :: Countdown
-  -- ^ The 'Countdown' being checked
-  -> Bool
-  -- ^ 'True' if running, 'False' otherwise
-countdownIsRunning countdown = timerIsRunning timer
-  where timer = countdownTimer countdown
-
--- | Determines whether or not a 'Countdown' has been started (even if
--- subsequently stopped)
-countdownIsStarted
-  :: Countdown
-  -- ^ The 'Countdown' being checked
-  -> Bool
-  -- ^ 'True' if it has been started, 'False' otherwise
-countdownIsStarted countdown = timerIsStarted timer
-  where timer = countdownTimer countdown
 
 -- | Determines whether or not a 'Stopwatch' is running
 stopwatchIsRunning
