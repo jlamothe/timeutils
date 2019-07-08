@@ -50,6 +50,7 @@ main = hspec $ do
   allLapsUsingSpec
   totalStopwatchLengthUsingSpec
   stopwatchIsRunningSpec
+  stopwatchIsStartedSpec
 
 timeElapsedUsingSpec :: Spec
 timeElapsedUsingSpec = describe "timeElapsedUsing" $ do
@@ -398,6 +399,26 @@ stopwatchIsRunningSpec = describe "stopwatchIsRunning" $ do
       t <- getCurrentTime
       let stopwatch = runningStopwatch t
       stopwatchIsRunning stopwatch `shouldBe` True
+
+stopwatchIsStartedSpec :: Spec
+stopwatchIsStartedSpec = describe "stopwatchIsStarted" $ do
+
+  context "newStopwatch" $
+    it "should be False" $
+      stopwatchIsStarted newStopwatch `shouldBe` False
+
+  context "started" $
+    it "should be True" $ do
+      (t, t') <- times 60
+      let
+        timer     = startTimerUsing t newTimer
+        stopwatch = newStopwatch { stopwatchTimer = timer }
+      stopwatchIsStarted stopwatch `shouldBe` True
+
+  context "previous laps" $
+    it "shoukd be True" $ let
+      stopwatch = newStopwatch { stopwatchLaps = [60] }
+      in stopwatchIsStarted stopwatch `shouldBe` True
 
 times :: NominalDiffTime -> IO (UTCTime, UTCTime)
 times dt = do
