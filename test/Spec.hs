@@ -22,7 +22,12 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import Test.Hspec (Spec, context, describe, hspec, it, shouldBe)
 
-import Data.Time.Clock (addUTCTime, getCurrentTime)
+import Data.Time.Clock
+  ( NominalDiffTime
+  , UTCTime
+  , addUTCTime
+  , getCurrentTime
+  )
 
 import Data.Time.Utils
 
@@ -42,6 +47,7 @@ main = hspec $ do
   startCountdownSpec
   stopCountdownSpec
   currentLapUsingSpec
+  allLapsUsingSpec
 
 timeElapsedUsingSpec :: Spec
 timeElapsedUsingSpec = describe "timeElapsedUsing" $ do
@@ -336,11 +342,41 @@ currentLapUsingSpec = describe "currentLapUsing" $ do
 
   context "running" $
     it "should be 1 minute" $ do
-      t1 <- getCurrentTime
+      (stopwatch, t) <- runningStopwatch 60
+      currentLapUsing t stopwatch `shouldBe` 60
+
+allLapsUsingSpec :: Spec
+allLapsUsingSpec = describe "allLapsUsing" $ do
+
+  context "newStopwatch" $
+    it "should return a lap of zero length" $ do
+      t <- getCurrentTime
+      allLapsUsing t newStopwatch `shouldBe` [0]
+
+  context "single lap" $
+    it "should return a single lap of 1 minute" $ do
+      (stopwatch, t) <- runningStopwatch 60
+      allLapsUsing t stopwatch `shouldBe` [60]
+
+  context "multiple laps" $
+    it "should return the lap times" $ do
+      t <- getCurrentTime
       let
-        t2        = addUTCTime 60 t1
-        timer     = startTimerUsing t1 newTimer
-        stopwatch = newStopwatch { stopwatchTimer = timer }
-      currentLapUsing t2 stopwatch `shouldBe` 60
+        t'        = addUTCTime 60 t
+        timer     = startTimerUsing t newTimer
+        stopwatch = Stopwatch
+          { stopwatchTimer = timer
+          , stopwatchLaps  = [10, 20, 30]
+          }
+      allLapsUsing t' stopwatch `shouldBe` [60, 10, 20, 30]
+
+runningStopwatch :: NominalDiffTime -> IO (Stopwatch, UTCTime)
+runningStopwatch dt = do
+  t <- getCurrentTime
+  let
+    t'        = addUTCTime dt t
+    timer     = startTimerUsing t newTimer
+    stopwatch = newStopwatch { stopwatchTimer = timer }
+  return (stopwatch, t')
 
 -- jl

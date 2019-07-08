@@ -42,6 +42,7 @@ module Data.Time.Utils (
   countdownIsCompleted,
   -- * Stopwatch Functions
   currentLap,
+  allLaps,
   -- * Pure Functions
   decomposeTime,
   composeTime,
@@ -59,7 +60,8 @@ module Data.Time.Utils (
   countdownIsRunning,
   countdownIsStarted,
   -- ** Stopwatch Functions
-  currentLapUsing
+  currentLapUsing,
+  allLapsUsing
 ) where
 
 import Data.Maybe (isJust, isNothing)
@@ -105,6 +107,8 @@ data Countdown = Countdown
 data Stopwatch = Stopwatch
   { stopwatchTimer :: Timer
   -- ^ The 'Timer' for the current lap
+  , stopwatchLaps  :: [NominalDiffTime]
+  -- ^ The times of previous laps (most recent first)
   } deriving (Eq, Show)
 
 -- | New instance of a 'Timer'
@@ -126,6 +130,7 @@ newCountdown l = Countdown l newTimer
 newStopwatch :: Stopwatch
 newStopwatch = Stopwatch
   { stopwatchTimer = newTimer
+  , stopwatchLaps  = []
   }
 
 -- | Starts a 'Timer'
@@ -206,6 +211,16 @@ currentLap
   -> IO NominalDiffTime
   -- ^ Returns the amount of time elapsed in the current lap
 currentLap stopwatch = currentLapUsing
+  <$> getCurrentTime
+  <*> return stopwatch
+
+-- | Returns the lap times for a 'Stopwatch'
+allLaps
+  :: Stopwatch
+  -- ^ The 'Stopwatch' being checked
+  -> IO [NominalDiffTime]
+  -- ^ Returns the lap times (most recent first)
+allLaps stopwatch = allLapsUsing
   <$> getCurrentTime
   <*> return stopwatch
 
@@ -375,5 +390,16 @@ currentLapUsing
   -- ^ The elapsed time for the current lap
 currentLapUsing t stopwatch = timeElapsedUsing t timer
   where timer = stopwatchTimer stopwatch
+
+-- | Returns the lap times from a 'Stopwatch' given a time
+allLapsUsing
+  :: UTCTime
+  -- ^ The current time
+  -> Stopwatch
+  -- ^ The 'Stopwatch' being checked
+  -> [NominalDiffTime]
+  -- ^ The lap times (most recent first)
+allLapsUsing t stopwatch = currentLapUsing t stopwatch :
+  stopwatchLaps stopwatch
 
 -- jl
