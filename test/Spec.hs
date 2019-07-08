@@ -48,6 +48,7 @@ main = hspec $ do
   stopCountdownSpec
   currentLapUsingSpec
   allLapsUsingSpec
+  totalStopwatchLengthUsingSpec
 
 timeElapsedUsingSpec :: Spec
 timeElapsedUsingSpec = describe "timeElapsedUsing" $ do
@@ -361,6 +362,28 @@ allLapsUsingSpec = describe "allLapsUsing" $ do
           , stopwatchLaps  = [10, 20, 30]
           }
       allLapsUsing t' stopwatch `shouldBe` [60, 10, 20, 30]
+
+totalStopwatchLengthUsingSpec :: Spec
+totalStopwatchLengthUsingSpec = describe "totalStopwatchLengthUsing" $ do
+
+  context "newStopwatch" $
+    it "should be zero" $ do
+      t <- getCurrentTime
+      totalStopwatchLengthUsing t newStopwatch `shouldBe` 0
+
+  context "single lap" $
+    it "should be 1 minute" $ do
+      (t, t') <- times 60
+      let stopwatch = runningStopwatch t
+      totalStopwatchLengthUsing t' stopwatch `shouldBe` 60
+
+  context "multiple laps" $
+    it "should be 90 seconds" $ do
+      (t, t') <- times 60
+      let
+        stopwatch = (runningStopwatch t)
+          { stopwatchLaps = [10, 20] }
+      totalStopwatchLengthUsing t' stopwatch `shouldBe` 90
 
 times :: NominalDiffTime -> IO (UTCTime, UTCTime)
 times dt = do

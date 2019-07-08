@@ -43,6 +43,7 @@ module Data.Time.Utils (
   -- * Stopwatch Functions
   currentLap,
   allLaps,
+  totalStopwatchLength,
   -- * Pure Functions
   decomposeTime,
   composeTime,
@@ -61,7 +62,8 @@ module Data.Time.Utils (
   countdownIsStarted,
   -- ** Stopwatch Functions
   currentLapUsing,
-  allLapsUsing
+  allLapsUsing,
+  totalStopwatchLengthUsing
 ) where
 
 import Data.Maybe (isJust, isNothing)
@@ -221,6 +223,16 @@ allLaps
   -> IO [NominalDiffTime]
   -- ^ Returns the lap times (most recent first)
 allLaps stopwatch = allLapsUsing
+  <$> getCurrentTime
+  <*> return stopwatch
+
+-- | Calculates the total run time of a 'Stopwatch'
+totalStopwatchLength
+  :: Stopwatch
+  -- ^ The 'Stopwatch' being checked
+  -> IO NominalDiffTime
+  -- ^ Returns the total run time
+totalStopwatchLength stopwatch = totalStopwatchLengthUsing
   <$> getCurrentTime
   <*> return stopwatch
 
@@ -401,5 +413,16 @@ allLapsUsing
   -- ^ The lap times (most recent first)
 allLapsUsing t stopwatch = currentLapUsing t stopwatch :
   stopwatchLaps stopwatch
+
+-- | Calculates the total runtime of a 'Stopwatch' given a time
+totalStopwatchLengthUsing
+  :: UTCTime
+  -- ^ The current time
+  -> Stopwatch
+  -- ^ The 'Stopwatch' being checked
+  -> NominalDiffTime
+  -- ^ The total run time
+totalStopwatchLengthUsing t stopwatch =
+  sum $ allLapsUsing t stopwatch
 
 -- jl
