@@ -61,6 +61,7 @@ module Data.Time.Utils (
   countdownIsRunning,
   countdownIsStarted,
   -- ** Stopwatch Functions
+  stopwatchIsRunning,
   currentLapUsing,
   allLapsUsing,
   totalStopwatchLengthUsing
@@ -391,6 +392,14 @@ countdownIsStarted
   -- ^ 'True' if it has been started, 'False' otherwise
 countdownIsStarted countdown = timerIsStarted timer
   where timer = countdownTimer countdown
+
+-- | Determines whether or not a 'Stopwatch' is running
+stopwatchIsRunning
+  :: Stopwatch
+  -- ^ The 'Stopwatch' being checked
+  -> Bool
+  -- ^ 'True' if the 'Stopwatch' is running, 'False' otherwise
+stopwatchIsRunning = timerIsRunning . stopwatchTimer
 
 -- | Determines the length of the current lap given a time
 currentLapUsing
