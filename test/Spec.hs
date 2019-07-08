@@ -48,7 +48,7 @@ main = hspec $ do
   stopCountdownSpec
   currentLapUsingSpec
   allLapsUsingSpec
-  totalStopwatchLengthUsingSpec
+  totalStopwatchTimeUsingSpec
   stopwatchIsRunningSpec
   stopwatchIsStartedSpec
 
@@ -365,19 +365,19 @@ allLapsUsingSpec = describe "allLapsUsing" $ do
           }
       allLapsUsing t' stopwatch `shouldBe` [60, 10, 20, 30]
 
-totalStopwatchLengthUsingSpec :: Spec
-totalStopwatchLengthUsingSpec = describe "totalStopwatchLengthUsing" $ do
+totalStopwatchTimeUsingSpec :: Spec
+totalStopwatchTimeUsingSpec = describe "totalStopwatchTimeUsing" $ do
 
   context "newStopwatch" $
     it "should be zero" $ do
       t <- getCurrentTime
-      totalStopwatchLengthUsing t newStopwatch `shouldBe` 0
+      totalStopwatchTimeUsing t newStopwatch `shouldBe` 0
 
   context "single lap" $
     it "should be 1 minute" $ do
       (t, t') <- times 60
       let stopwatch = runningStopwatch t
-      totalStopwatchLengthUsing t' stopwatch `shouldBe` 60
+      totalStopwatchTimeUsing t' stopwatch `shouldBe` 60
 
   context "multiple laps" $
     it "should be 90 seconds" $ do
@@ -385,7 +385,7 @@ totalStopwatchLengthUsingSpec = describe "totalStopwatchLengthUsing" $ do
       let
         stopwatch = (runningStopwatch t)
           { stopwatchLaps = [10, 20] }
-      totalStopwatchLengthUsing t' stopwatch `shouldBe` 90
+      totalStopwatchTimeUsing t' stopwatch `shouldBe` 90
 
 stopwatchIsRunningSpec :: Spec
 stopwatchIsRunningSpec = describe "stopwatchIsRunning" $ do
