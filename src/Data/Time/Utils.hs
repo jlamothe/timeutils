@@ -50,22 +50,22 @@ module Data.Time.Utils (
   -- ** Timer Functions
   timerIsRunning,
   timerIsStarted,
-  startTimerUsing,
-  stopTimerUsing,
-  timeElapsedUsing,
+  startTimerAt,
+  stopTimerAt,
+  timeElapsedAt,
   -- ** Countdown Functions
   countdownIsRunning,
   countdownIsStarted,
-  startCountdownUsing,
-  stopCountdownUsing,
-  timeRemainingUsing,
-  countdownIsCompletedUsing,
+  startCountdownAt,
+  stopCountdownAt,
+  timeRemainingAt,
+  countdownIsCompletedAt,
   -- ** Stopwatch Functions
   stopwatchIsRunning,
   stopwatchIsStarted,
-  currentLapUsing,
-  allLapsUsing,
-  totalStopwatchTimeUsing
+  currentLapAt,
+  allLapsAt,
+  totalStopwatchTimeAt
 ) where
 
 import Data.Maybe (isJust, isNothing)
@@ -143,7 +143,7 @@ startTimer
   -- ^ The 'Timer' being started
   -> IO Timer
   -- ^ The modified 'Timer'
-startTimer timer = startTimerUsing
+startTimer timer = startTimerAt
   <$> getCurrentTime
   <*> return timer
 
@@ -153,7 +153,7 @@ stopTimer
   -- ^ The 'Timer' being stopped
   -> IO Timer
   -- ^ The modified 'Timer'
-stopTimer timer = stopTimerUsing
+stopTimer timer = stopTimerAt
   <$> getCurrentTime
   <*> return timer
 
@@ -163,7 +163,7 @@ timeElapsed
   -- ^ The 'Timer' being checked
   -> IO NominalDiffTime
   -- ^ The amount of time elapsed
-timeElapsed timer = timeElapsedUsing
+timeElapsed timer = timeElapsedAt
   <$> getCurrentTime
   <*> return timer
 
@@ -173,7 +173,7 @@ startCountdown
   -- ^ The 'Countdown' being started
   -> IO Countdown
   -- ^ Returns the modified 'Countdown'
-startCountdown countdown = startCountdownUsing
+startCountdown countdown = startCountdownAt
   <$> getCurrentTime
   <*> return countdown
 
@@ -183,7 +183,7 @@ stopCountdown
   -- ^ The 'Countdown' being stopped
   -> IO Countdown
   -- ^ Returns the modified 'Countdown'
-stopCountdown countdown = stopCountdownUsing
+stopCountdown countdown = stopCountdownAt
   <$> getCurrentTime
   <*> return countdown
 
@@ -193,7 +193,7 @@ timeRemaining
   -- ^ The 'Countdown' being checked
   -> IO NominalDiffTime
   -- ^ The amount of time remaining
-timeRemaining countdown = timeRemainingUsing
+timeRemaining countdown = timeRemainingAt
   <$> getCurrentTime
   <*> return countdown
 
@@ -204,7 +204,7 @@ countdownIsCompleted
   -> IO Bool
   -- ^ Returns 'True' if the 'Countdown' has completed, 'False'
   -- otherwise
-countdownIsCompleted countdown = countdownIsCompletedUsing
+countdownIsCompleted countdown = countdownIsCompletedAt
   <$> getCurrentTime
   <*> return countdown
 
@@ -214,7 +214,7 @@ currentLap
   -- ^ The 'Stopwatch' being checked
   -> IO NominalDiffTime
   -- ^ Returns the amount of time elapsed in the current lap
-currentLap stopwatch = currentLapUsing
+currentLap stopwatch = currentLapAt
   <$> getCurrentTime
   <*> return stopwatch
 
@@ -224,7 +224,7 @@ allLaps
   -- ^ The 'Stopwatch' being checked
   -> IO [NominalDiffTime]
   -- ^ Returns the lap times (most recent first)
-allLaps stopwatch = allLapsUsing
+allLaps stopwatch = allLapsAt
   <$> getCurrentTime
   <*> return stopwatch
 
@@ -234,7 +234,7 @@ totalStopwatchTime
   -- ^ The 'Stopwatch' being checked
   -> IO NominalDiffTime
   -- ^ Returns the total run time
-totalStopwatchTime stopwatch = totalStopwatchTimeUsing
+totalStopwatchTime stopwatch = totalStopwatchTimeAt
   <$> getCurrentTime
   <*> return stopwatch
 
@@ -285,39 +285,39 @@ timerIsStarted timer = timerIsRunning timer ||
   timerOffset timer /= 0
 
 -- | Starts a 'Timer' from a given time
-startTimerUsing
+startTimerAt
   :: UTCTime
   -- ^ The current time
   -> Timer
   -- ^ The 'Timer' being started
   -> Timer
   -- ^ The modified 'Timer'
-startTimerUsing t timer
+startTimerAt t timer
   | isNothing (timerStartTime timer) =
     timer { timerStartTime = Just t }
   | otherwise = timer
 
 -- | Stops a 'Timer' from a given time
-stopTimerUsing
+stopTimerAt
   :: UTCTime
   -- ^ The current time
   -> Timer
   -- ^ The 'Timer' being stopped
   -> Timer
   -- ^ The modified 'Timer'
-stopTimerUsing t timer = newTimer { timerOffset = offset }
-  where offset = timeElapsedUsing t timer
+stopTimerAt t timer = newTimer { timerOffset = offset }
+  where offset = timeElapsedAt t timer
 
 -- | Calculates the amount of time elapsed on a 'Timer' from a given
 -- time
-timeElapsedUsing
+timeElapsedAt
   :: UTCTime
   -- ^ The current time
   -> Timer
   -- ^ The 'Timer' being checked
   -> NominalDiffTime
   -- ^ The amount of time elapsed
-timeElapsedUsing t timer = case timerStartTime timer of
+timeElapsedAt t timer = case timerStartTime timer of
   Nothing -> timerOffset timer
   Just st -> timerOffset timer + diffUTCTime t st
 
@@ -341,49 +341,49 @@ countdownIsStarted countdown = timerIsStarted timer
   where timer = countdownTimer countdown
 
 -- | Starts a 'Countdown' using a given time
-startCountdownUsing
+startCountdownAt
   :: UTCTime
   -- ^ The current time
   -> Countdown
   -- ^ The 'Countdown' being started
   -> Countdown
   -- ^ The modified 'Countdown'
-startCountdownUsing t countdown =
+startCountdownAt t countdown =
   countdown { countdownTimer = timer' }
   where
-    timer' = startTimerUsing t timer
+    timer' = startTimerAt t timer
     timer  = countdownTimer countdown
 
 -- | Stops a 'Countdown' using a given time
-stopCountdownUsing
+stopCountdownAt
   :: UTCTime
   -- ^ The current time
   -> Countdown
   -- ^ The 'Countdown' being stopped
   -> Countdown
   -- ^ The modified 'Countdown'
-stopCountdownUsing t countdown =
+stopCountdownAt t countdown =
   countdown { countdownTimer = timer' }
   where
-    timer' = stopTimerUsing t timer
+    timer' = stopTimerAt t timer
     timer  = countdownTimer countdown
 
 -- | Calculates the amount of time remaining in a 'Countdown' at a
 -- given time
-timeRemainingUsing
+timeRemainingAt
   :: UTCTime
   -- ^ The current time
   -> Countdown
   -- ^ The 'Countdown' being checked
   -> NominalDiffTime
   -- ^ The amount of time remaining
-timeRemainingUsing t countdown = len - timeElapsedUsing t timer
+timeRemainingAt t countdown = len - timeElapsedAt t timer
   where
     len   = countdownLength countdown
     timer = countdownTimer countdown
 
 -- | Determines if a 'Countdown' is completed at a given time
-countdownIsCompletedUsing
+countdownIsCompletedAt
   :: UTCTime
   -- ^ The current time
   -> Countdown
@@ -391,8 +391,8 @@ countdownIsCompletedUsing
   -> Bool
   -- ^ Returns 'True' if the 'Countdown' has completed, 'False'
   -- otherwise.
-countdownIsCompletedUsing t countdown =
-  timeRemainingUsing t countdown <= 0
+countdownIsCompletedAt t countdown =
+  timeRemainingAt t countdown <= 0
 
 -- | Determines whether or not a 'Stopwatch' is running
 stopwatchIsRunning
@@ -412,36 +412,36 @@ stopwatchIsStarted
 stopwatchIsStarted = (/= newStopwatch)
 
 -- | Determines the length of the current lap given a time
-currentLapUsing
+currentLapAt
   :: UTCTime
   -- ^ The current time
   -> Stopwatch
   -- ^ The 'Stopwatch' being checkwd
   -> NominalDiffTime
   -- ^ The elapsed time for the current lap
-currentLapUsing t stopwatch = timeElapsedUsing t timer
+currentLapAt t stopwatch = timeElapsedAt t timer
   where timer = stopwatchTimer stopwatch
 
 -- | Returns the lap times from a 'Stopwatch' given a time
-allLapsUsing
+allLapsAt
   :: UTCTime
   -- ^ The current time
   -> Stopwatch
   -- ^ The 'Stopwatch' being checked
   -> [NominalDiffTime]
   -- ^ The lap times (most recent first)
-allLapsUsing t stopwatch = currentLapUsing t stopwatch :
+allLapsAt t stopwatch = currentLapAt t stopwatch :
   stopwatchLaps stopwatch
 
 -- | Calculates the total runtime of a 'Stopwatch' given a time
-totalStopwatchTimeUsing
+totalStopwatchTimeAt
   :: UTCTime
   -- ^ The current time
   -> Stopwatch
   -- ^ The 'Stopwatch' being checked
   -> NominalDiffTime
   -- ^ The total run time
-totalStopwatchTimeUsing t stopwatch =
-  sum $ allLapsUsing t stopwatch
+totalStopwatchTimeAt t stopwatch =
+  sum $ allLapsAt t stopwatch
 
 -- jl
