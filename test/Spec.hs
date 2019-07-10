@@ -416,7 +416,7 @@ stopwatchIsStartedSpec = describe "stopwatchIsStarted" $ do
       stopwatchIsStarted stopwatch `shouldBe` True
 
   context "previous laps" $
-    it "shoukd be True" $ let
+    it "should be True" $ let
       stopwatch = newStopwatch { stopwatchLaps = [60] }
       in stopwatchIsStarted stopwatch `shouldBe` True
 
