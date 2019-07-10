@@ -41,6 +41,7 @@ module Data.Time.Utils (
   timeRemaining,
   countdownIsCompleted,
   -- * Stopwatch Functions
+  startStopwatch,
   currentLap,
   allLaps,
   totalStopwatchTime,
@@ -63,6 +64,7 @@ module Data.Time.Utils (
   -- ** Stopwatch Functions
   stopwatchIsRunning,
   stopwatchIsStarted,
+  startStopwatchAt,
   currentLapAt,
   allLapsAt,
   totalStopwatchTimeAt
@@ -207,6 +209,16 @@ countdownIsCompleted
 countdownIsCompleted countdown = countdownIsCompletedAt
   <$> getCurrentTime
   <*> return countdown
+
+-- | Starts a 'Stopwatch'
+startStopwatch
+  :: Stopwatch
+  -- ^ The 'Stopwatch' being started
+  -> IO Stopwatch
+  -- ^ Returns the modified 'Stopwatch'
+startStopwatch stopwatch = startStopwatchAt
+  <$> getCurrentTime
+  <*> return stopwatch
 
 -- | Returns the time of the current lap from a 'Stopwatch'
 currentLap
@@ -410,6 +422,17 @@ stopwatchIsStarted
   -> Bool
   -- ^ 'True' if started, 'False' otherwise
 stopwatchIsStarted = (/= newStopwatch)
+
+-- | Starts a 'Stopwatch' at a given time
+startStopwatchAt
+  :: UTCTime
+  -- ^ The current time
+  -> Stopwatch
+  -- ^ The 'Stopwatch' being started
+  -> Stopwatch
+  -- ^ The modified 'Stopwatch'
+startStopwatchAt t stopwatch = stopwatch { stopwatchTimer = timer }
+  where timer = startTimerAt t $ stopwatchTimer stopwatch
 
 -- | Determines the length of the current lap given a time
 currentLapAt

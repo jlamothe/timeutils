@@ -51,6 +51,7 @@ main = hspec $ do
   totalStopwatchTimeAtSpec
   stopwatchIsRunningSpec
   stopwatchIsStartedSpec
+  startStopwatchSpec
 
 timeElapsedAtSpec :: Spec
 timeElapsedAtSpec = describe "timeElapsedAt" $ do
@@ -419,6 +420,11 @@ stopwatchIsStartedSpec = describe "stopwatchIsStarted" $ do
     it "should be True" $ let
       stopwatch = newStopwatch { stopwatchLaps = [60] }
       in stopwatchIsStarted stopwatch `shouldBe` True
+
+startStopwatchSpec = describe "startStopwatch" $
+  it "should start the stopwatch" $ do
+    stopwatch <- startStopwatch newStopwatch
+    stopwatchIsRunning stopwatch `shouldBe` True
 
 times :: NominalDiffTime -> IO (UTCTime, UTCTime)
 times dt = do
