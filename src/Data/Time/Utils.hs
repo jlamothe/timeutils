@@ -31,16 +31,17 @@ module Data.Time.Utils (
   newTimeParts,
   newCountdown,
   newStopwatch,
-  -- * Timer Functions
+  -- * Impure Functions
+  -- ** Timer Functions
   startTimer,
   stopTimer,
   timeElapsed,
-  -- * Countdown Functions
+  -- ** Countdown Functions
   startCountdown,
   stopCountdown,
   timeRemaining,
   countdownIsCompleted,
-  -- * Stopwatch Functions
+  -- ** Stopwatch Functions
   startStopwatch,
   stopStopwatch,
   newLap,
