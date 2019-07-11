@@ -53,6 +53,7 @@ main = hspec $ do
   stopwatchIsStartedSpec
   startStopwatchSpec
   stopStopwatchSpec
+  newLapAtSpec
 
 timeElapsedAtSpec :: Spec
 timeElapsedAtSpec = describe "timeElapsedAt" $ do
@@ -432,6 +433,32 @@ stopStopwatchSpec = describe "stopStopwatch" $
     stopwatch  <- startStopwatch newStopwatch
     stopwatch' <- stopStopwatch stopwatch
     stopwatchIsRunning stopwatch' `shouldBe` False
+
+newLapAtSpec :: Spec
+newLapAtSpec = describe "newLapAt" $ do
+
+  context "newStopwatch" $
+    it "should record a zero length lap, and start a new one" $ do
+      (t, t') <- times 60
+      let stopwatch = newLapAt t newStopwatch
+      allLapsAt t' stopwatch `shouldBe` [60, 0]
+
+  context "running" $
+    it "should start a new lap" $ do
+      (t, t') <- times 60
+      let
+        stopwatch  = runningStopwatch t
+        stopwatch' = newLapAt t' stopwatch
+      allLapsAt t' stopwatch' `shouldBe` [0, 60]
+
+  context "previous lap" $
+    it "should start a new lap" $ do
+      (t, t') <- times 60
+      let
+        stopwatch  = (runningStopwatch t)
+          { stopwatchLaps = [30] }
+        stopwatch' = newLapAt t' stopwatch
+      allLapsAt t' stopwatch' `shouldBe` [0, 60, 30]
 
 times :: NominalDiffTime -> IO (UTCTime, UTCTime)
 times dt = do
