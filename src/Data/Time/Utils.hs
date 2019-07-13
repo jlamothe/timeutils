@@ -49,8 +49,8 @@ module Data.Time.Utils (
   allLaps,
   totalStopwatchTime,
   -- * Pure Functions
-  decomposeTime,
-  composeTime,
+  decomposeNDT,
+  composeNDT,
   -- ** Timer Functions
   timerIsRunning,
   timerIsStarted,
@@ -276,8 +276,8 @@ totalStopwatchTime stopwatch = totalStopwatchTimeAt
   <*> return stopwatch
 
 -- | Converts a 'NominalDiffTime' to a 'TimeParts' value
-decomposeTime :: NominalDiffTime -> TimeParts
-decomposeTime t = TimeParts
+decomposeNDT :: NominalDiffTime -> TimeParts
+decomposeNDT t = TimeParts
   { tpDays    = days
   , tpHours   = hours
   , tpMinutes = minutes
@@ -296,8 +296,8 @@ decomposeTime t = TimeParts
     ms      = floor $ t * 1000
 
 -- | Converts a 'TimeParts' value to a 'NominalDiffTime'
-composeTime :: TimeParts -> NominalDiffTime
-composeTime tp = fromInteger millis / 1000
+composeNDT :: TimeParts -> NominalDiffTime
+composeNDT tp = fromInteger millis / 1000
   where
     millis  = seconds * 1000 + toInteger (tpMillis tp)
     seconds = minutes * 60 + toInteger (tpSeconds tp)

@@ -36,8 +36,8 @@ main = hspec $ do
   timeElapsedAtSpec
   startTimerAtSpec
   stopTimerAtSpec
-  decomposeTimeSpec
-  composeTimeSpec
+  decomposeNDTSpec
+  composeNDTSpec
   timerIsRunningSpec
   timerIsStartedSpec
   timeRemainingAtSpec
@@ -133,8 +133,8 @@ stopTimerAtSpec = describe "stopTimerAt" $ do
         expected = newTimer { timerOffset = 120 }
       stopTimerAt t' timer `shouldBe` expected
 
-decomposeTimeSpec :: Spec
-decomposeTimeSpec = describe "decomposeTime" $ do
+decomposeNDTSpec :: Spec
+decomposeNDTSpec = describe "decomposeNDT" $ do
   let
     days    = 1
     hours   = days * 24 + 2
@@ -145,7 +145,7 @@ decomposeTimeSpec = describe "decomposeTime" $ do
 
   context "zero" $
     it "should be zero" $
-      decomposeTime 0 `shouldBe` newTimeParts
+      decomposeNDT 0 `shouldBe` newTimeParts
 
   context "positive" $
     it "should calculate the time parts" $ let
@@ -156,7 +156,7 @@ decomposeTimeSpec = describe "decomposeTime" $ do
         , tpSeconds = 4
         , tpMillis  = 5
         }
-      in decomposeTime time `shouldBe` expected
+      in decomposeNDT time `shouldBe` expected
 
   context "negative" $
     it "should calculate the time parts" $ let
@@ -167,10 +167,10 @@ decomposeTimeSpec = describe "decomposeTime" $ do
         , tpSeconds = -4
         , tpMillis  = -5
         }
-      in decomposeTime (-time) `shouldBe` expected
+      in decomposeNDT (-time) `shouldBe` expected
 
-composeTimeSpec :: Spec
-composeTimeSpec = describe "composeTime" $
+composeNDTSpec :: Spec
+composeNDTSpec = describe "composeNDT" $
   it "should compose correctly" $ let
     parts = TimeParts
       { tpDays    = 1
@@ -179,8 +179,8 @@ composeTimeSpec = describe "composeTime" $
       , tpSeconds = 4
       , tpMillis  = 5
       }
-    t = composeTime parts
-    in decomposeTime t `shouldBe` parts
+    t = composeNDT parts
+    in decomposeNDT t `shouldBe` parts
 
 timerIsRunningSpec :: Spec
 timerIsRunningSpec = describe "timerIsRunning" $ do
