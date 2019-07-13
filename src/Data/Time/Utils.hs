@@ -51,6 +51,7 @@ module Data.Time.Utils (
   -- * Pure Functions
   decomposeNDT,
   composeNDT,
+  humanNDT,
   -- ** Timer Functions
   timerIsRunning,
   timerIsStarted,
@@ -304,6 +305,24 @@ composeNDT tp = fromInteger millis / 1000
     seconds = minutes * 60 + toInteger (tpSeconds tp)
     minutes = hours * 60 + toInteger (tpMinutes tp)
     hours   = toInteger (tpDays tp) * 24 + toInteger (tpHours tp)
+
+-- | Converts a 'NominalDiffTime' into a more human-readable format
+humanNDT :: NominalDiffTime -> String
+humanNDT t = sign ++ d ++ h ++ m ++ s ++ ms
+  where
+    sign    = if t < 0 then "-" else ""
+    d       = show (tpDays tp) ++ "d "
+    h       = fix 2 (tpHours tp) ++ "h "
+    m       = fix 2 (tpMinutes tp) ++ "m "
+    s       = fix 2 (tpSeconds tp) ++ "."
+    ms      = fix 3 (tpMillis tp) ++ "s"
+    tp      = decomposeNDT $ abs t
+    fix n x = let
+      str  = show x
+      slen = length str
+      plen = n - slen
+      pad  = replicate plen '0'
+      in pad ++ str
 
 -- | Determines whether or not a 'Timer' is running
 timerIsRunning

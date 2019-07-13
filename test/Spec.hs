@@ -54,6 +54,7 @@ main = hspec $ do
   startStopwatchSpec
   stopStopwatchSpec
   newLapAtSpec
+  humanNDTSpec
 
 timeElapsedAtSpec :: Spec
 timeElapsedAtSpec = describe "timeElapsedAt" $ do
@@ -459,6 +460,25 @@ newLapAtSpec = describe "newLapAt" $ do
           { stopwatchLaps = [30] }
         stopwatch' = newLapAt t' stopwatch
       allLapsAt t' stopwatch' `shouldBe` [0, 60, 30]
+
+humanNDTSpec :: Spec
+humanNDTSpec = describe "humanNDT" $ mapM_
+  (\(val, expected) ->
+    context (show val) $
+      it ("should be " ++ expected) $
+        humanNDT val `shouldBe` expected)
+  --  value,    expected
+  [ ( 0,        "0d 00h 00m 00.000s"  )
+  , ( single,   "1d 02h 03m 04.005s"  )
+  , ( double,   "11d 12h 13m 14.015s" )
+  , ( triple,   "11d 12h 13m 14.123s" )
+  , ( negative, "-1d 02h 03m 04.005s" )
+  ]
+  where
+    single   = composeNDT $ TimeParts 1 2 3 4 5
+    double   = composeNDT $ TimeParts 11 12 13 14 15
+    triple   = composeNDT $ TimeParts 11 12 13 14 123
+    negative = -single
 
 times :: NominalDiffTime -> IO (UTCTime, UTCTime)
 times dt = do
