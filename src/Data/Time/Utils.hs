@@ -92,7 +92,8 @@ data Timer = Timer
     -- currently running)
   } deriving (Eq, Show)
 
--- | Represents a 'NominalDiffTime' in a more human readable format
+-- | Represents a 'NominalDiffTime' broken down into days, hours,
+-- minutes, seconds and milliseconds
 data TimeParts = TimeParts
   { tpDays    :: Int
     -- ^ The number of days
