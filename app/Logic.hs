@@ -20,25 +20,16 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 -}
 
-module Main where
+module Logic (handleEvent) where
 
-import Brick.Main (App (..), defaultMain, neverShowCursor)
-import Control.Monad (void)
+import Brick.Types (BrickEvent (..), EventM, Next)
 
-import Logic
 import Types
-import UI
 
-app :: App ProgState () ()
-app = App
-  { appDraw         = draw
-  , appChooseCursor = neverShowCursor
-  , appHandleEvent  = handleEvent
-  , appStartEvent   = return
-  , appAttrMap      = mkAttrMap
-  }
-
-main :: IO ()
-main = void $ newProgState >>= defaultMain app
+handleEvent
+  :: ProgState
+  -> BrickEvent () ()
+  -> EventM () (Next ProgState)
+handleEvent = undefined
 
 -- jl

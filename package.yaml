@@ -36,6 +36,7 @@ executables:
     - -with-rtsopts=-N
     dependencies:
     - timeutils
+    - brick >= 0.47.1 && < 0.48
 
 tests:
   timeutils-test:

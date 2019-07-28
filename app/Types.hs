@@ -20,25 +20,25 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 -}
 
-module Main where
+module Types (ProgState (..), newProgState) where
 
-import Brick.Main (App (..), defaultMain, neverShowCursor)
-import Control.Monad (void)
+import Data.Time (UTCTime, getCurrentTime)
 
-import Logic
-import Types
-import UI
+import Data.Time.Utils
 
-app :: App ProgState () ()
-app = App
-  { appDraw         = draw
-  , appChooseCursor = neverShowCursor
-  , appHandleEvent  = handleEvent
-  , appStartEvent   = return
-  , appAttrMap      = mkAttrMap
-  }
+data ProgState = ProgState
+  { currentTime :: UTCTime
+  , stopwatch   :: Stopwatch
+  , countdowns  :: [Countdown]
+  } deriving (Eq, Show)
 
-main :: IO ()
-main = void $ newProgState >>= defaultMain app
+newProgState :: IO ProgState
+newProgState = do
+  t <- getCurrentTime
+  return ProgState
+    { currentTime = t
+    , stopwatch   = newStopwatch
+    , countdowns  = []
+    }
 
 -- jl
