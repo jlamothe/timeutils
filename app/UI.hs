@@ -22,15 +22,46 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 module UI (draw, mkAttrMap) where
 
-import Brick.AttrMap (AttrMap)
+import Brick.AttrMap (AttrMap, AttrName, attrName)
 import Brick.Types (Widget)
+import Brick.Widgets.Core (hBox, str, vBox, withAttr)
 
+import Data.Time.Utils
 import Types
 
 draw :: ProgState -> [Widget ()]
-draw = undefined
+draw s = [case progMode s of
+  StopwatchMode -> stopwatchW s
+  CountdownMode -> countdownsW s]
 
 mkAttrMap :: ProgState -> AttrMap
 mkAttrMap = undefined
+
+stopwatchW :: ProgState -> Widget ()
+stopwatchW s = vBox $
+  [ withAttr titleAttr $ str "Stopwatch"
+  , hBox
+    [ withAttr labelAttr $ str "Total time: "
+    , str $ humanNDT $ totalStopwatchTimeAt t sw
+    ]
+  , withAttr labelAttr $ str "Laps:"
+  ] ++ map (str . humanNDT) (allLapsAt t sw)
+  where
+    t  = currentTime s
+    sw = stopwatch s
+
+countdownsW :: ProgState -> Widget ()
+countdownsW s = vBox $
+  withAttr titleAttr (str "Countdowns") :
+  map (str . humanNDT . timeRemainingAt t) cds
+  where
+    t   = currentTime s
+    cds = countdowns s
+
+titleAttr :: AttrName
+titleAttr = attrName "title"
+
+labelAttr :: AttrName
+labelAttr = attrName "label"
 
 -- jl

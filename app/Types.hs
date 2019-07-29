@@ -20,7 +20,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 -}
 
-module Types (ProgState (..), newProgState) where
+module Types
+  ( ProgState (..)
+  , ProgMode (..)
+  , newProgState
+  ) where
 
 import Data.Time (UTCTime, getCurrentTime)
 
@@ -30,7 +34,11 @@ data ProgState = ProgState
   { currentTime :: UTCTime
   , stopwatch   :: Stopwatch
   , countdowns  :: [Countdown]
+  , progMode    :: ProgMode
   } deriving (Eq, Show)
+
+data ProgMode = StopwatchMode | CountdownMode
+  deriving (Eq, Show)
 
 newProgState :: IO ProgState
 newProgState = do
@@ -39,6 +47,7 @@ newProgState = do
     { currentTime = t
     , stopwatch   = newStopwatch
     , countdowns  = []
+    , progMode    = StopwatchMode
     }
 
 -- jl
