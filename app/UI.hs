@@ -25,19 +25,17 @@ module UI (draw, mkAttrMap) where
 import Brick.AttrMap (AttrMap, AttrName, attrMap, attrName)
 import Brick.Types (Widget)
 import Brick.Util (on)
-import Brick.Widgets.Core (fill, hBox, str, vBox, withAttr)
+import Brick.Widgets.Center (center)
+import Brick.Widgets.Core (hBox, str, vBox, withAttr)
 import qualified Graphics.Vty.Attributes as A
 
 import Data.Time.Utils
 import Types
 
 draw :: ProgState -> [Widget ()]
-draw s =
-  [ case progMode s of
+draw s = [center $ case progMode s of
     StopwatchMode -> stopwatchW s
-    CountdownMode -> countdownsW s
-  , fill ' '
-  ]
+    CountdownMode -> countdownsW s]
 
 mkAttrMap :: ProgState -> AttrMap
 mkAttrMap _ = attrMap
