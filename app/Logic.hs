@@ -32,6 +32,7 @@ import Graphics.Vty.Input.Events
   , Modifier (..)
   )
 
+import Data.Time.Utils
 import Types
 
 handleEvent
@@ -46,7 +47,9 @@ handleEvent s ev = do
     VtyEvent (EvKey (KChar 'c') [MCtrl]) -> halt s'
     VtyEvent (EvKey KEsc [])             -> halt s'
     VtyEvent (EvKey (KChar '\t') [])     -> changeMode s'
-    _                                    -> continue s'
+    _                                    -> case progMode s of
+      StopwatchMode -> stopwatchEvent s' ev
+      CountdownMode -> countdownEvent s' ev
 
 changeMode :: ProgState -> EventM () (Next ProgState)
 changeMode s = continue s
@@ -54,5 +57,23 @@ changeMode s = continue s
     StopwatchMode -> CountdownMode
     CountdownMode -> StopwatchMode
   }
+
+stopwatchEvent
+  :: ProgState
+  -> BrickEvent () ()
+  -> EventM () (Next ProgState)
+stopwatchEvent s (VtyEvent (EvKey (KChar ' ') [])) = do
+  let sw = stopwatch s
+  sw' <- if stopwatchIsRunning sw
+    then liftIO $ stopStopwatch sw
+    else liftIO $ startStopwatch sw
+  continue s { stopwatch = sw' }
+stopwatchEvent s _ = continue s
+
+countdownEvent
+  :: ProgState
+  -> BrickEvent () ()
+  -> EventM () (Next ProgState)
+countdownEvent s _ = continue s
 
 -- jl
