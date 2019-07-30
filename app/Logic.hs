@@ -26,7 +26,11 @@ import Brick.Main (continue, halt)
 import Brick.Types (BrickEvent (..), EventM, Next)
 import Control.Monad.IO.Class (liftIO)
 import Data.Time (getCurrentTime)
-import Graphics.Vty.Input.Events (Event (..), Key (..))
+import Graphics.Vty.Input.Events
+  ( Event (..)
+  , Key (..)
+  , Modifier (..)
+  )
 
 import Types
 
@@ -38,9 +42,11 @@ handleEvent s ev = do
   t <- liftIO getCurrentTime
   let s' = s { currentTime = t }
   case ev of
-    VtyEvent (EvKey (KChar 'q') []) -> halt s'
-    VtyEvent (EvKey (KChar '\t') []) -> changeMode s'
-    _ -> continue s'
+    VtyEvent (EvKey (KChar 'q') [])      -> halt s'
+    VtyEvent (EvKey (KChar 'c') [MCtrl]) -> halt s'
+    VtyEvent (EvKey KEsc [])             -> halt s'
+    VtyEvent (EvKey (KChar '\t') [])     -> changeMode s'
+    _                                    -> continue s'
 
 changeMode :: ProgState -> EventM () (Next ProgState)
 changeMode s = continue s
