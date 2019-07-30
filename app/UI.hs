@@ -22,20 +22,33 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 module UI (draw, mkAttrMap) where
 
-import Brick.AttrMap (AttrMap, AttrName, attrName)
+import Brick.AttrMap (AttrMap, AttrName, attrMap, attrName)
 import Brick.Types (Widget)
-import Brick.Widgets.Core (hBox, str, vBox, withAttr)
+import Brick.Util (on)
+import Brick.Widgets.Core (fill, hBox, str, vBox, withAttr)
+import qualified Graphics.Vty.Attributes as A
 
 import Data.Time.Utils
 import Types
 
 draw :: ProgState -> [Widget ()]
-draw s = [case progMode s of
-  StopwatchMode -> stopwatchW s
-  CountdownMode -> countdownsW s]
+draw s =
+  [ case progMode s of
+    StopwatchMode -> stopwatchW s
+    CountdownMode -> countdownsW s
+  , fill ' '
+  ]
 
 mkAttrMap :: ProgState -> AttrMap
-mkAttrMap = undefined
+mkAttrMap _ = attrMap
+  (A.white `on` A.blue)
+  [ ( titleAttr
+    , A.currentAttr `A.withStyle` (A.bold + A.reverseVideo)
+    )
+  , ( labelAttr
+    , A.currentAttr `A.withStyle` A.bold
+    )
+  ]
 
 stopwatchW :: ProgState -> Widget ()
 stopwatchW s = vBox $

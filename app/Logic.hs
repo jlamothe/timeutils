@@ -22,7 +22,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 module Logic (handleEvent) where
 
+import Brick.Main (continue, halt)
 import Brick.Types (BrickEvent (..), EventM, Next)
+import Control.Monad.IO.Class (liftIO)
+import Data.Time (getCurrentTime)
+import Graphics.Vty.Input.Events (Event (..), Key (..))
 
 import Types
 
@@ -30,6 +34,19 @@ handleEvent
   :: ProgState
   -> BrickEvent () ()
   -> EventM () (Next ProgState)
-handleEvent = undefined
+handleEvent s ev = do
+  t <- liftIO getCurrentTime
+  let s' = s { currentTime = t }
+  case ev of
+    VtyEvent (EvKey (KChar 'q') []) -> halt s'
+    VtyEvent (EvKey (KChar '\t') []) -> changeMode s'
+    _ -> continue s'
+
+changeMode :: ProgState -> EventM () (Next ProgState)
+changeMode s = continue s
+  { progMode = case progMode s of
+    StopwatchMode -> CountdownMode
+    CountdownMode -> StopwatchMode
+  }
 
 -- jl

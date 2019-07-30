@@ -37,6 +37,7 @@ executables:
     dependencies:
     - timeutils
     - brick >= 0.47.1 && < 0.48
+    - vty
 
 tests:
   timeutils-test:
