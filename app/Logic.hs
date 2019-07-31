@@ -84,6 +84,11 @@ stopwatchEvent s (VtyEvent (EvKey (KChar ' ') [])) = let
     then stopStopwatchAt t sw
     else startStopwatchAt t sw
   in return s { stopwatch = sw' }
+stopwatchEvent s (VtyEvent (EvKey (KChar 'l') [])) = let
+  t   = currentTime s
+  sw  = stopwatch s
+  sw' = newLapAt t sw
+  in return s { stopwatch = sw' }
 stopwatchEvent s _ = return s
 
 countdownEvent
