@@ -22,7 +22,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 module Main where
 
-import Brick.Main (App (..), defaultMain, neverShowCursor)
+import Brick.Main (App (..), customMain, neverShowCursor)
+import Graphics.Vty (mkVty)
+import Graphics.Vty.Config (defaultConfig)
 import Control.Monad (void)
 
 import Logic
@@ -39,6 +41,10 @@ app = App
   }
 
 main :: IO ()
-main = void $ newProgState >>= defaultMain app
+main = do
+  s <- newProgState
+  let buildVty = mkVty defaultConfig
+  vty <- buildVty
+  void $ customMain vty buildVty (Just $ channel s) app s
 
 -- jl

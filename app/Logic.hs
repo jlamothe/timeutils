@@ -22,8 +22,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 module Logic (handleEvent) where
 
+import Brick.BChan (writeBChan)
 import Brick.Main (continue, halt)
 import Brick.Types (BrickEvent (..), EventM, Next)
+import Control.Concurrent (forkIO, threadDelay)
+import Control.Monad (void)
 import Control.Monad.IO.Class (liftIO)
 import Data.Time (getCurrentTime)
 import Graphics.Vty.Input.Events
@@ -49,11 +52,14 @@ handleEvent s ev = do
       halt s'
     VtyEvent (EvKey KEsc []) ->
       halt s'
-    VtyEvent (EvKey (KChar '\t') []) ->
+    VtyEvent (EvKey (KChar '\t') []) -> do
+      ping s'
       changeMode s' >>= continue
-    _ -> (case progMode s of
-      StopwatchMode -> stopwatchEvent s' ev
-      CountdownMode -> countdownEvent s' ev) >>= continue
+    _ -> do
+      ping s'
+      (case progMode s of
+        StopwatchMode -> stopwatchEvent s' ev
+        CountdownMode -> countdownEvent s' ev) >>= continue
 
 changeMode :: ProgState -> EventM () ProgState
 changeMode s = return s
@@ -61,6 +67,11 @@ changeMode s = return s
     StopwatchMode -> CountdownMode
     CountdownMode -> StopwatchMode
   }
+
+ping :: ProgState -> EventM () ()
+ping s = void $ liftIO $ forkIO $ do
+  threadDelay 100000
+  writeBChan (channel s) ()
 
 stopwatchEvent
   :: ProgState

@@ -26,6 +26,7 @@ module Types
   , newProgState
   ) where
 
+import Brick.BChan (BChan, newBChan)
 import Data.Time (UTCTime, getCurrentTime)
 
 import Data.Time.Utils
@@ -35,19 +36,22 @@ data ProgState = ProgState
   , stopwatch   :: Stopwatch
   , countdowns  :: [Countdown]
   , progMode    :: ProgMode
-  } deriving (Eq, Show)
+  , channel     :: BChan ()
+  }
 
 data ProgMode = StopwatchMode | CountdownMode
   deriving (Eq, Show)
 
 newProgState :: IO ProgState
 newProgState = do
-  t <- getCurrentTime
+  t    <- getCurrentTime
+  chan <- newBChan 10
   return ProgState
     { currentTime = t
     , stopwatch   = newStopwatch
     , countdowns  = []
     , progMode    = StopwatchMode
+    , channel     = chan
     }
 
 -- jl
