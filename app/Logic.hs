@@ -43,16 +43,20 @@ handleEvent s ev = do
   t <- liftIO getCurrentTime
   let s' = s { currentTime = t }
   case ev of
-    VtyEvent (EvKey (KChar 'q') [])      -> halt s'
-    VtyEvent (EvKey (KChar 'c') [MCtrl]) -> halt s'
-    VtyEvent (EvKey KEsc [])             -> halt s'
-    VtyEvent (EvKey (KChar '\t') [])     -> changeMode s'
-    _                                    -> case progMode s of
+    VtyEvent (EvKey (KChar 'q') []) ->
+      halt s'
+    VtyEvent (EvKey (KChar 'c') [MCtrl]) ->
+      halt s'
+    VtyEvent (EvKey KEsc []) ->
+      halt s'
+    VtyEvent (EvKey (KChar '\t') []) ->
+      changeMode s' >>= continue
+    _ -> (case progMode s of
       StopwatchMode -> stopwatchEvent s' ev
-      CountdownMode -> countdownEvent s' ev
+      CountdownMode -> countdownEvent s' ev) >>= continue
 
-changeMode :: ProgState -> EventM () (Next ProgState)
-changeMode s = continue s
+changeMode :: ProgState -> EventM () ProgState
+changeMode s = return s
   { progMode = case progMode s of
     StopwatchMode -> CountdownMode
     CountdownMode -> StopwatchMode
@@ -61,19 +65,20 @@ changeMode s = continue s
 stopwatchEvent
   :: ProgState
   -> BrickEvent () ()
-  -> EventM () (Next ProgState)
-stopwatchEvent s (VtyEvent (EvKey (KChar ' ') [])) = do
-  let sw = stopwatch s
-  sw' <- if stopwatchIsRunning sw
-    then liftIO $ stopStopwatch sw
-    else liftIO $ startStopwatch sw
-  continue s { stopwatch = sw' }
-stopwatchEvent s _ = continue s
+  -> EventM () ProgState
+stopwatchEvent s (VtyEvent (EvKey (KChar ' ') [])) = let
+  t   = currentTime s
+  sw  = stopwatch s
+  sw' = if stopwatchIsRunning sw
+    then stopStopwatchAt t sw
+    else startStopwatchAt t sw
+  in return s { stopwatch = sw' }
+stopwatchEvent s _ = return s
 
 countdownEvent
   :: ProgState
   -> BrickEvent () ()
-  -> EventM () (Next ProgState)
-countdownEvent s _ = continue s
+  -> EventM () ProgState
+countdownEvent s _ = return s
 
 -- jl
