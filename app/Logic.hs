@@ -46,23 +46,17 @@ handleEvent s ev = do
   t <- liftIO getCurrentTime
   let s' = s { currentTime = t }
   case ev of
-    VtyEvent (EvKey (KChar 'q') []) ->
-      halt s'
-    VtyEvent (EvKey (KChar 'c') [MCtrl]) ->
-      halt s'
-    VtyEvent (EvKey KEsc []) ->
-      halt s'
-    VtyEvent (EvKey (KChar '\t') []) -> do
-      ping s'
-      changeMode s' >>= continue
-    _ -> do
-      ping s'
-      (case progMode s of
-        StopwatchMode -> stopwatchEvent s' ev
-        CountdownMode -> countdownEvent s' ev) >>= continue
+    VtyEvent (EvKey (KChar 'q') [])      -> halt s'
+    VtyEvent (EvKey (KChar 'c') [MCtrl]) -> halt s'
+    VtyEvent (EvKey KEsc [])             -> halt s'
+    VtyEvent (EvKey (KChar '\t') [])     -> continue $ changeMode s'
+    AppEvent ()                          -> ping s' >> continue s'
+    _                                    -> (case progMode s of
+      StopwatchMode -> stopwatchEvent s' ev
+      CountdownMode -> countdownEvent s' ev) >>= continue
 
-changeMode :: ProgState -> EventM () ProgState
-changeMode s = return s
+changeMode :: ProgState -> ProgState
+changeMode s = s
   { progMode = case progMode s of
     StopwatchMode -> CountdownMode
     CountdownMode -> StopwatchMode

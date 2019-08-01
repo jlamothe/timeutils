@@ -22,6 +22,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 module Main where
 
+import Brick.BChan (writeBChan)
 import Brick.Main (App (..), customMain, neverShowCursor)
 import Graphics.Vty (mkVty)
 import Graphics.Vty.Config (defaultConfig)
@@ -43,6 +44,7 @@ app = App
 main :: IO ()
 main = do
   s <- newProgState
+  writeBChan (channel s) ()
   let buildVty = mkVty defaultConfig
   vty <- buildVty
   void $ customMain vty buildVty (Just $ channel s) app s
