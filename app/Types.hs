@@ -32,11 +32,12 @@ import Data.Time (UTCTime, getCurrentTime)
 import Data.Time.Utils
 
 data ProgState = ProgState
-  { currentTime :: UTCTime
-  , stopwatch   :: Stopwatch
-  , countdowns  :: [Countdown]
-  , progMode    :: ProgMode
-  , channel     :: BChan ()
+  { currentTime  :: UTCTime
+  , stopwatch    :: Stopwatch
+  , countdowns   :: [Countdown]
+  , progMode     :: ProgMode
+  , countdownSel :: Maybe Int
+  , channel      :: BChan ()
   }
 
 data ProgMode = StopwatchMode | CountdownMode
@@ -47,11 +48,12 @@ newProgState = do
   t    <- getCurrentTime
   chan <- newBChan 10
   return ProgState
-    { currentTime = t
-    , stopwatch   = newStopwatch
-    , countdowns  = []
-    , progMode    = StopwatchMode
-    , channel     = chan
+    { currentTime  = t
+    , stopwatch    = newStopwatch
+    , countdowns   = []
+    , progMode     = StopwatchMode
+    , countdownSel = Nothing
+    , channel      = chan
     }
 
 -- jl

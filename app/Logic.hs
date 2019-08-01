@@ -93,6 +93,13 @@ countdownEvent
   :: ProgState
   -> Event
   -> ProgState
+countdownEvent s (EvKey (KChar 'n') []) = newCd s
 countdownEvent s _ = s
+
+newCd :: ProgState -> ProgState
+newCd s = s
+  { countdowns   = newCountdown 0 : cds
+  , countdownSel = Just 0
+  } where cds = countdowns s
 
 -- jl

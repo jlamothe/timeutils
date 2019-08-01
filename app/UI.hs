@@ -64,10 +64,18 @@ stopwatchW s = vBox $
 countdownsW :: ProgState -> Widget ()
 countdownsW s = vBox $
   withAttr titleAttr (str "Countdowns") :
-  map (str . humanNDT . timeRemainingAt t) cds
+  if null cds
+    then [str "(no countdowns)"]
+    else map (uncurry display) cds
   where
-    t   = currentTime s
-    cds = countdowns s
+    t            = currentTime s
+    cds          = zip [0..] $ countdowns s
+    display i cd = let
+      selected = countdownSel s == Just i
+      left     = if selected then ">" else " "
+      right    = if selected then "<" else " "
+      val      = humanNDT $ timeRemainingAt t cd
+      in str $ left ++ val ++ right
 
 titleAttr :: AttrName
 titleAttr = attrName "title"
