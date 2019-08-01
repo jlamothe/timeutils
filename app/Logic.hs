@@ -51,9 +51,11 @@ handleEvent s ev = do
     VtyEvent (EvKey KEsc [])             -> halt s'
     VtyEvent (EvKey (KChar '\t') [])     -> continue $ changeMode s'
     AppEvent ()                          -> ping s' >> continue s'
-    _                                    -> (case progMode s of
-      StopwatchMode -> stopwatchEvent s' ev
-      CountdownMode -> countdownEvent s' ev) >>= continue
+    VtyEvent ev'                         -> continue $
+      case progMode s of
+        StopwatchMode -> stopwatchEvent s' ev'
+        CountdownMode -> countdownEvent s' ev'
+    _ -> continue s'
 
 changeMode :: ProgState -> ProgState
 changeMode s = s
@@ -69,28 +71,28 @@ ping s = void $ liftIO $ forkIO $ do
 
 stopwatchEvent
   :: ProgState
-  -> BrickEvent () ()
-  -> EventM () ProgState
-stopwatchEvent s (VtyEvent (EvKey (KChar ' ') [])) = let
+  -> Event
+  -> ProgState
+stopwatchEvent s (EvKey (KChar ' ') []) = let
   t   = currentTime s
   sw  = stopwatch s
   sw' = if stopwatchIsRunning sw
     then stopStopwatchAt t sw
     else startStopwatchAt t sw
-  in return s { stopwatch = sw' }
-stopwatchEvent s (VtyEvent (EvKey (KChar 'l') [])) = let
+  in s { stopwatch = sw' }
+stopwatchEvent s (EvKey (KChar 'l') []) = let
   t   = currentTime s
   sw  = stopwatch s
   sw' = newLapAt t sw
-  in return s { stopwatch = sw' }
-stopwatchEvent s (VtyEvent (EvKey (KChar 'r') [])) =
-  return s { stopwatch = newStopwatch }
-stopwatchEvent s _ = return s
+  in s { stopwatch = sw' }
+stopwatchEvent s (EvKey (KChar 'r') []) =
+  s { stopwatch = newStopwatch }
+stopwatchEvent s _ = s
 
 countdownEvent
   :: ProgState
-  -> BrickEvent () ()
-  -> EventM () ProgState
-countdownEvent s _ = return s
+  -> Event
+  -> ProgState
+countdownEvent s _ = s
 
 -- jl
