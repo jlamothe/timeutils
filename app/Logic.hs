@@ -94,6 +94,8 @@ countdownEvent
   -> Event
   -> ProgState
 countdownEvent s (EvKey (KChar 'n') []) = newCd s
+countdownEvent s (EvKey KUp [])         = prevCd s
+countdownEvent s (EvKey KDown [])       = nextCd s
 countdownEvent s _ = s
 
 newCd :: ProgState -> ProgState
@@ -101,5 +103,25 @@ newCd s = s
   { countdowns   = newCountdown 0 : cds
   , countdownSel = Just 0
   } where cds = countdowns s
+
+prevCd :: ProgState -> ProgState
+prevCd s = s
+  { countdownSel = case countdownSel s of
+    Just 0  -> Nothing
+    Just n  -> Just $ pred n
+    Nothing -> if null $ countdowns s
+      then Nothing
+      else Just $ pred $ length $ countdowns s
+  }
+
+nextCd :: ProgState -> ProgState
+nextCd s = s
+  { countdownSel = case countdownSel s of
+    Nothing -> Just 0
+    Just n  -> let n' = succ n
+      in if n' >= length (countdowns s)
+        then Nothing
+        else Just n'
+  }
 
 -- jl
