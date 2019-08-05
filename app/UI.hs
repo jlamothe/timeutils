@@ -24,7 +24,7 @@ module UI (draw, mkAttrMap) where
 
 import Brick.AttrMap (AttrMap, AttrName, attrMap, attrName)
 import Brick.Types (Widget)
-import Brick.Util (on)
+import Brick.Util (fg, on)
 import Brick.Widgets.Center (center)
 import Brick.Widgets.Core (hBox, str, vBox, withAttr)
 import qualified Graphics.Vty.Attributes as A
@@ -45,6 +45,9 @@ mkAttrMap _ = attrMap
     )
   , ( labelAttr
     , A.currentAttr `A.withStyle` A.bold
+    )
+  , ( completedAttr
+    , fg A.red `A.withStyle` A.bold
     )
   ]
 
@@ -72,15 +75,21 @@ countdownsW s = vBox $
     cds          = zip [0..] $ countdowns s
     display i cd = let
       selected = countdownSel s == Just i
-      left     = if selected then ">" else " "
-      right    = if selected then "<" else " "
-      val      = humanNDT $ timeRemainingAt t cd
-      in str $ left ++ val ++ right
+      left     = str $ if selected then ">" else " "
+      right    = str $ if selected then "<" else " "
+      subW     = str $ humanNDT $ timeRemainingAt t cd
+      mainW    = if countdownIsCompletedAt t cd
+        then withAttr completedAttr subW
+        else subW
+      in hBox [left, mainW, right]
 
 titleAttr :: AttrName
 titleAttr = attrName "title"
 
 labelAttr :: AttrName
 labelAttr = attrName "label"
+
+completedAttr :: AttrName
+completedAttr = attrName "completed"
 
 -- jl
