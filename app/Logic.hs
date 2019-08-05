@@ -101,6 +101,7 @@ countdownEvent s ev = case ev of
   EvKey (KChar ' ') [] -> startStopCd s
   EvKey (KChar 'r') [] -> resetCd s
   EvKey (KChar 'R') [] -> resetCds s
+  EvKey KDel []        -> deleteCd s
   EvKey (KChar 'd') [] -> adjustCd day s
   EvKey (KChar 'D') [] -> adjustCd (-day) s
   EvKey (KChar 'h') [] -> adjustCd hour s
@@ -154,6 +155,17 @@ resetCd = updateCd $ \cd -> let
 resetCds :: ProgState -> ProgState
 resetCds s = s
   { countdowns   = []
+  , countdownSel = Nothing
+  }
+
+deleteCd :: ProgState -> ProgState
+deleteCd s = s
+  { countdowns = foldr
+    (\(i, cd) cds -> if Just i == countdownSel s
+      then cds
+      else cd : cds)
+    []
+    (zip [0..] $ countdowns s)
   , countdownSel = Nothing
   }
 
