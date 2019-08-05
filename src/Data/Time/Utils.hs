@@ -105,7 +105,7 @@ data TimeParts = TimeParts
   , tpSeconds :: Int
     -- ^ The number of seconds
   , tpMillis  :: Int
-    -- ^ The number if milliseconds
+    -- ^ The number of milliseconds
   } deriving (Eq, Show)
 
 -- | Represents a timed countdown
