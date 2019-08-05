@@ -28,7 +28,8 @@ import Brick.Types (BrickEvent (..), EventM, Next)
 import Control.Concurrent (forkIO, threadDelay)
 import Control.Monad (void)
 import Control.Monad.IO.Class (liftIO)
-import Data.Time (getCurrentTime)
+import Data.Time (NominalDiffTime, getCurrentTime)
+import Lens.Micro (over, sets)
 import Graphics.Vty.Input.Events
   ( Event (..)
   , Key (..)
@@ -93,10 +94,19 @@ countdownEvent
   :: ProgState
   -> Event
   -> ProgState
-countdownEvent s (EvKey (KChar 'n') []) = newCd s
-countdownEvent s (EvKey KUp [])         = prevCd s
-countdownEvent s (EvKey KDown [])       = nextCd s
-countdownEvent s _ = s
+countdownEvent s ev = case ev of
+  EvKey (KChar 'n') [] -> newCd s
+  EvKey KUp []         -> prevCd s
+  EvKey KDown []       -> nextCd s
+  EvKey (KChar 'd') [] -> adjustCd day s
+  EvKey (KChar 'D') [] -> adjustCd (-day) s
+  EvKey (KChar 'h') [] -> adjustCd hour s
+  EvKey (KChar 'H') [] -> adjustCd (-hour) s
+  EvKey (KChar 'm') [] -> adjustCd minute s
+  EvKey (KChar 'M') [] -> adjustCd (-minute) s
+  EvKey (KChar 's') [] -> adjustCd second s
+  EvKey (KChar 'S') [] -> adjustCd (-second) s
+  _                    -> s
 
 newCd :: ProgState -> ProgState
 newCd s = s
@@ -123,5 +133,30 @@ nextCd s = s
         then Nothing
         else Just n'
   }
+
+adjustCd :: NominalDiffTime -> ProgState -> ProgState
+adjustCd dt = over (sets updateCd . countdownLengthL) $
+  max 0 . (+dt)
+
+updateCd :: (Countdown -> Countdown) -> ProgState -> ProgState
+updateCd f s = s
+  { countdowns = map
+    (\(i, cd) -> if Just i == countdownSel s
+      then f cd
+      else cd)
+    (zip [0..] $ countdowns s)
+  }
+
+day :: NominalDiffTime
+day = hour * 24
+
+hour :: NominalDiffTime
+hour = minute * 60
+
+minute :: NominalDiffTime
+minute = second * 60
+
+second :: NominalDiffTime
+second = 1
 
 -- jl
