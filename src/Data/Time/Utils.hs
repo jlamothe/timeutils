@@ -26,6 +26,22 @@ module Data.Time.Utils (
   TimeParts (..),
   Countdown (..),
   Stopwatch (..),
+  -- * Lenses
+  -- ** Timer Lenses
+  timerOffsetL,
+  timerStartTimeL,
+  -- ** TimeParts Lenses
+  tpDaysL,
+  tpHoursL,
+  tpMinutesL,
+  tpSecondsL,
+  tpMillisL,
+  -- ** Countdown Lenses
+  countdownLengthL,
+  countdownTimerL,
+  -- ** Stopwatch Lenses
+  stopwatchTimerL,
+  stopwatchLapsL,
   -- * Constructors
   newTimer,
   newTimeParts,
@@ -83,6 +99,7 @@ import Data.Time.Clock
   , diffUTCTime
   , getCurrentTime
   )
+import Lens.Micro (Lens', lens)
 
 -- | A type that keeps track of the passage of time
 data Timer = Timer
@@ -92,6 +109,16 @@ data Timer = Timer
     -- ^ The time the 'Timer' was last started ('Nothing' if not
     -- currently running)
   } deriving (Eq, Show)
+
+-- | Lens for the 'timerOffset' attribute
+timerOffsetL :: Lens' Timer NominalDiffTime
+timerOffsetL = lens timerOffset $
+  \t o -> t { timerOffset = o }
+
+-- | Lens for the 'timerStartTime' attribute
+timerStartTimeL :: Lens' Timer (Maybe UTCTime)
+timerStartTimeL = lens timerStartTime $
+  \t st -> t { timerStartTime = st }
 
 -- | Represents a 'NominalDiffTime' broken down into days, hours,
 -- minutes, seconds and milliseconds
@@ -108,6 +135,31 @@ data TimeParts = TimeParts
     -- ^ The number of milliseconds
   } deriving (Eq, Show)
 
+-- | Lens for the 'tpDays' attribute
+tpDaysL :: Lens' TimeParts Int
+tpDaysL = lens tpDays $
+  \tp d -> tp { tpDays = d }
+
+-- | Lens for the 'tpHours' attribute
+tpHoursL :: Lens' TimeParts Int
+tpHoursL = lens tpHours $
+  \tp h -> tp { tpHours = h }
+
+-- | Lens for the 'tpMinutes' attribute
+tpMinutesL :: Lens' TimeParts Int
+tpMinutesL = lens tpMinutes $
+  \tp m -> tp { tpMinutes = m }
+
+-- | Lens for the 'tpSeconds' attribute
+tpSecondsL :: Lens' TimeParts Int
+tpSecondsL = lens tpSeconds $
+  \tp s -> tp { tpSeconds = s }
+
+-- | Lens for the 'tpMillis' attribute
+tpMillisL :: Lens' TimeParts Int
+tpMillisL = lens tpMillis $
+  \tp ms -> tp { tpMillis = ms }
+
 -- | Represents a timed countdown
 data Countdown = Countdown
   { countdownLength :: NominalDiffTime
@@ -116,6 +168,16 @@ data Countdown = Countdown
   -- ^ The timer which runs the 'Countdown'
   } deriving (Eq, Show)
 
+-- | Lens for the 'countdownLength' attribute
+countdownLengthL :: Lens' Countdown NominalDiffTime
+countdownLengthL = lens countdownLength $
+  \cd l -> cd { countdownLength = l }
+
+-- | Lens for the 'countdownTimer' attribute
+countdownTimerL :: Lens' Countdown Timer
+countdownTimerL = lens countdownTimer $
+  \cd t -> cd { countdownTimer = t }
+
 -- | Tracks the time of multiple laps
 data Stopwatch = Stopwatch
   { stopwatchTimer :: Timer
@@ -123,6 +185,16 @@ data Stopwatch = Stopwatch
   , stopwatchLaps  :: [NominalDiffTime]
   -- ^ The times of previous laps (most recent first)
   } deriving (Eq, Show)
+
+-- | Lens for the 'stopwatchTimer' attribute
+stopwatchTimerL :: Lens' Stopwatch Timer
+stopwatchTimerL = lens stopwatchTimer $
+  \sw t -> sw { stopwatchTimer = t }
+
+-- | Lens for the 'stopwatchLaps' attribute
+stopwatchLapsL :: Lens' Stopwatch [NominalDiffTime]
+stopwatchLapsL = lens stopwatchLaps $
+  \sw l -> sw { stopwatchLaps = l }
 
 -- | New instance of a 'Timer'
 newTimer :: Timer
