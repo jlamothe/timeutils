@@ -99,6 +99,7 @@ countdownEvent s ev = case ev of
   EvKey KUp []         -> prevCd s
   EvKey KDown []       -> nextCd s
   EvKey (KChar ' ') [] -> startStopCd s
+  EvKey (KChar 'r') [] -> resetCd s
   EvKey (KChar 'd') [] -> adjustCd day s
   EvKey (KChar 'D') [] -> adjustCd (-day) s
   EvKey (KChar 'h') [] -> adjustCd hour s
@@ -143,6 +144,11 @@ startStopCd s = let
       then stopCountdownAt t cd
       else startCountdownAt t cd)
     s
+
+resetCd :: ProgState -> ProgState
+resetCd = updateCd $ \cd -> let
+  l = countdownLength cd
+  in newCountdown l
 
 adjustCd :: NominalDiffTime -> ProgState -> ProgState
 adjustCd dt = over (sets updateCd . countdownLengthL) $
