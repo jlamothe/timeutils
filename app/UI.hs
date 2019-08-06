@@ -39,7 +39,7 @@ draw s = [center $ case progMode s of
 
 mkAttrMap :: ProgState -> AttrMap
 mkAttrMap _ = attrMap
-  (A.white `on` A.blue)
+  (A.green `on` A.black)
   [ ( titleAttr
     , A.currentAttr `A.withStyle` (A.bold + A.reverseVideo)
     )
